@@ -7,9 +7,9 @@
 
 //OBB::OBB(const std::vector<Vector3d>& p){
 //    //calculate covariance matrix
-//    float c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
+//    //c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
 
-//    for(unsigned int i=0;i<p.size();i++) {
+//    for(int i=0;i<p.size();i++) {
 //        c11+=p[i][0]*p[i][0];
 //        c22+=p[i][1]*p[i][1];
 //        c33+=p[i][2]*p[i][2];
@@ -17,10 +17,10 @@
 //        c13+=p[i][0]*p[i][2];
 //        c23+=p[i][1]*p[i][2];
 //    }
-//    Matrix4d c=Matrix4d(c11,c12,c13,0,c12,c22,c23,0,c13,c23,c33,0,0,0,0,0);
-//    Matrix4d V;
-//    int nrot;
-//    Vector4d d;
+//    c=Matrix4d(c11,c12,c13,0,c12,c22,c23,0,c13,c23,c33,0,0,0,0,1);
+////    Matrix4d V;
+////    int nrot;
+////    Vector4d d;
 //    c.jacobi(d, V, nrot);
 //}
 
@@ -957,6 +957,16 @@ void Matrix4d::jacobiRot(double s, double tau, int i, int j, int k, int l) {
     M[i][j] = g-s*(h+g*tau);
     M[k][l] = h+s*(g-h*tau);
 }
+
+void Matrix4d::print() {
+    for(int i=0;i<4;i++) {
+        std::cout << i << ". Zeile: ";
+        for(int j=0;j<4;j++)
+            std::cout << M[i][j] << " ";
+        std::cout << std::endl;
+    }
+}
+
 
 int Matrix4d::jacobi(Vector4d& d, Matrix4d& V, int& nrot) {
     Matrix4d A = *this;

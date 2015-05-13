@@ -20,7 +20,6 @@
 
 
 #include "vecmath.h"
-#include "BB.h"
 
 class CGView;
 
@@ -69,7 +68,7 @@ public:
 				// ind[i] ind[i+1] ind[i+2] 
 				// contains the indices of the i-th triangle
     Quat4d q_now;
-    //AABB huelle, huelle2;
+
 
 protected:
 

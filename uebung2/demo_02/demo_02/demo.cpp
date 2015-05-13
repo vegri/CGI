@@ -9,7 +9,7 @@
 #include <QTextEdit>
 #include <QHBoxLayout>
 #include "demo.h"
-//#include "BB.h"
+#include "BB.h"
 
 #include <cmath>
 #include <fstream>
@@ -175,6 +175,15 @@ void CGMainWindow::loadPolyhedron() {
 
      ogl->zoom = 1/longestSide;
 
+     OBB obbhuelle(ogl->P1);
+//     Matrix4d test(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+//     std::cout << "test: " <<  std::endl;
+//     test.print();
+     std::cout << "obbhuelle c: " << std::endl;
+     obbhuelle.c.print();
+     std::cout << "obbhuelle V: " << std::endl;
+     obbhuelle.V.print();
+
     ogl->updateGL();
     statusBar()->showMessage ("Loading generator model done." ,3000);
 }
@@ -200,6 +209,8 @@ void CGView::drawMesh(){
             glVertex3dv(P1[ind1[i+2]].ptr());
         }
         glEnd();
+
+
 
         // Draw bounding box object 1
         AABB huelle(P1);

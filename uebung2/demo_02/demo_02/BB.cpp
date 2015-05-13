@@ -7,9 +7,9 @@
 
 OBB::OBB(const std::vector<Vector3d>& p){
     //calculate covariance matrix
-    float c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
+    c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
 
-    for(int i=0;i<p.size();i++) {
+    for(unsigned int i=0;i<p.size();i++) {
         c11+=p[i][0]*p[i][0];
         c22+=p[i][1]*p[i][1];
         c33+=p[i][2]*p[i][2];
@@ -17,13 +17,10 @@ OBB::OBB(const std::vector<Vector3d>& p){
         c13+=p[i][0]*p[i][2];
         c23+=p[i][1]*p[i][2];
     }
-    Matrix4d c=Matrix4d(c11,c12,c13,0,c12,c22,c23,0,c13,c23,c33,0,0,0,0,0);
-    Matrix4d V;
-    int nrot;
-    Vector4d d;
+    c=Matrix4d(c11,c12,c13,0,c12,c22,c23,0,c13,c23,c33,0,0,0,0,1);
     c.jacobi(d, V, nrot);
+    axis1(V[0][0], V[0][1], V[0][2]);
 }
-
 
 AABB::AABB(const std::vector<Vector3d> p){
     xmin= p[0][0];
@@ -32,7 +29,7 @@ AABB::AABB(const std::vector<Vector3d> p){
     ymax=ymin;
     zmin= p[0][2];
     zmax=zmin;
-    for(int i=1;i<p.size();i++) {
+    for(unsigned int i=1;i<p.size();i++) {
         if(p[i][0]<xmin ){
             xmin=p[i][0];
         }

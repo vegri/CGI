@@ -198,22 +198,7 @@ class Vector3d {
 //    void draw(double rot, double gruen, double blau);
 //};
 
-//class OBB{
-//  public:
-//    Vector3d huellQuader [8];
-//    double xmin,xmax, ymin, ymax, zmin, zmax;
-//     OBB(const std::vector<Vector3d>& p);
-//    void draw();
-//};
 
-//class AABB{
-//  public:
-//    Vector3d huellQuader [8];
-//    double xmin,xmax, ymin, ymax, zmin, zmax;
-//     AABB(const std::vector<Vector3d> p);
-//    bool intersect (const AABB& B);
-//    void draw(double rot, double gruen, double blau);
-//};
 
 
 class Vector4d {
@@ -633,6 +618,8 @@ class Matrix4d {
                  double a10, double a11, double a12,double a13,
                  double a20, double a21, double a22,double a23,
                  double a30, double a31, double a32,double a33);
+
+        void print();
                   
         double * ptr() { return (double*)M; }
         const double * ptr() const { return (const double *)M; }
@@ -1042,5 +1029,27 @@ inline double det(const Vector3d& a,const Vector3d& b,const Vector3d& c) {
 inline bool equivalent(double a,double b,double epsilon=1e-6) { 
   double delta = b-a; return delta<0.0?delta>=-epsilon:delta<=epsilon; 
 }
+
+//class OBB{
+//public:
+
+//    float c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
+//    Matrix4d c;
+//    Matrix4d V;
+//    int nrot;
+//    Vector4d d;
+
+//    OBB(const std::vector<Vector3d>& p);
+//    void draw();
+//};
+
+//class AABB{
+//  public:
+//    Vector3d huellQuader [8];
+//    double xmin,xmax, ymin, ymax, zmin, zmax;
+//     AABB(const std::vector<Vector3d> p);
+//    bool intersect (const AABB& B);
+//    void draw(double rot, double gruen, double blau);
+//};
 
 #endif
