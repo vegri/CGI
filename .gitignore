@@ -1,0 +1,11 @@
+*.off
+*.o
+.svn
+*.swp
+moc_demo.cpp
+Makefile
+*.user
+.DS_Store
+*pdf
+*.zip
+
