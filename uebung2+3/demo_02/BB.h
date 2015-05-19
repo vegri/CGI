@@ -22,7 +22,6 @@ public:
     Vector4d d;
 
     OBB(const std::vector<Vector3d>& p);
-    void draw();
 };
 
 class AABB{

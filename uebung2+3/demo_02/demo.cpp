@@ -173,16 +173,7 @@ void CGMainWindow::loadPolyhedron() {
         longestSide=zSide;
     }
 
-     ogl->zoom = 1/longestSide;
-
-     OBB obbhuelle(ogl->P1);
-//     Matrix4d test(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-//     std::cout << "test: " <<  std::endl;
-//     test.print();
-     std::cout << "obbhuelle c: " << std::endl;
-     obbhuelle.c.print();
-     std::cout << "obbhuelle V: " << std::endl;
-     obbhuelle.V.print();
+    ogl->zoom = 1/longestSide;
 
     ogl->updateGL();
     statusBar()->showMessage ("Loading generator model done." ,3000);
@@ -209,15 +200,10 @@ void CGView::drawMesh(){
             glVertex3dv(P1[ind1[i+2]].ptr());
         }
         glEnd();
-
-
-
-        // Draw bounding box object 1
-        AABB huelle(P1);
-        huelle.draw(0,1,0);
+        drawOBB(P1);
 
         if(!P2.empty()){
-            //std::cout << "P[0][0] ohne rot: " << P2[0][0] << std::endl;
+
             //Draw second mesh if vector P2 is nonempty
 
             //push 2. object into "own coordinate system" for rotation and translation
@@ -240,43 +226,98 @@ void CGView::drawMesh(){
             }
 
             glEnd();
-
-            AABB huelle2(P2);
-            huelle2.draw(0,1,0);
-
-            if(huelle.intersect(huelle2)){
-                huelle2.draw(1,0,0);
-            } else {
-                huelle2.draw(0,1,0);
-            }
+            drawOBB(P2);
             glPopMatrix();
 
-
-            if(huelle.intersect(huelle2)){
-                huelle.draw(1,0,0);
-            } else {
-                huelle.draw(0,1,0);
-            }
         }
     }
     //draw coordinate axes
 
-    glBegin(GL_LINES);
-    glColor3d(0, 0, 0);
-    glVertex3d(100,0,0);
-    glVertex3d(-100,0,0);
-    glVertex3d(0,100,0);
-    glVertex3d(0,-100,0);
-    glVertex3d(0,0,100);
-    glVertex3d(0,0,-100);
-    glEnd();
+//        glBegin(GL_LINES);
+//        glColor3d(0, 0, 0);
+//        glVertex3d(100,0,0);
+//        glVertex3d(-100,0,0);
+//        glVertex3d(0,100,0);
+//        glVertex3d(0,-100,0);
+//        glVertex3d(0,0,100);
+//        glVertex3d(0,0,-100);
+//        glEnd();
 }
 
-void CGView::drawOBB(){
+void CGView::drawOBB(std::vector<Vector3d> &p){
+    glDisable(GL_LIGHTING);
+    OBB obbhuelle(p);
+
     glPushMatrix();
     glColor3d(1,0,0);
+    Matrix4d coordTrafo;
+    coordTrafo.makeIdentity();
+    coordTrafo.print();
+    coordTrafo.makeRotate(Vector3d(0,1,0), obbhuelle.axis1);
+    //coord.makeRotate(Vector3d(1,0,0), obbhuelle.axis2);
 
+//    Vector3d coordSys [6];
+//    coordSys[0]=coordTrafo*Vector3d(2,0,0);
+//    coordSys[1]=coordTrafo*Vector3d(-2,0,0);
+//    coordSys[2]=coordTrafo*Vector3d(0,2,0);
+//    coordSys[3]=coordTrafo*Vector3d(0,-2,0);
+//    coordSys[4]=coordTrafo*Vector3d(0,0,2);
+//    coordSys[5]=coordTrafo*Vector3d(0,0,-2);
+
+    // Vector3d v1=Vector3d()
+    Vector3d boundingBox [8];
+    boundingBox[0]=coordTrafo*Vector3d(1/obbhuelle.a1,1/obbhuelle.a2,1/obbhuelle.a3);
+    boundingBox[1]=coordTrafo*Vector3d(1/obbhuelle.a1,1/obbhuelle.a2,-1/obbhuelle.a3);
+    boundingBox[2]=coordTrafo*Vector3d(1/obbhuelle.a1,-1/obbhuelle.a2,1/obbhuelle.a3);
+    boundingBox[3]=coordTrafo*Vector3d(1/obbhuelle.a1,-1/obbhuelle.a2,-1/obbhuelle.a3);
+    boundingBox[4]=coordTrafo*Vector3d(-1/obbhuelle.a1,1/obbhuelle.a2,1/obbhuelle.a3);
+    boundingBox[5]=coordTrafo*Vector3d(-1/obbhuelle.a1,1/obbhuelle.a2,-1/obbhuelle.a3);
+    boundingBox[6]=coordTrafo*Vector3d(-1/obbhuelle.a1,-1/obbhuelle.a2,1/obbhuelle.a3);
+    boundingBox[7]=coordTrafo*Vector3d(-1/obbhuelle.a1,-1/obbhuelle.a2,-1/obbhuelle.a3);
+
+    glBegin(GL_LINE_LOOP);
+    glColor3d(0, 1, 0);
+    glVertex3dv(boundingBox[0].ptr());
+    glVertex3dv(boundingBox[1].ptr());
+    glVertex3dv(boundingBox[3].ptr());
+    glVertex3dv(boundingBox[2].ptr());
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+    glColor3d(0, 1, 0);
+    glVertex3dv(boundingBox[4].ptr());
+    glVertex3dv(boundingBox[5].ptr());
+    glVertex3dv(boundingBox[7].ptr());
+    glVertex3dv(boundingBox[6].ptr());
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor3d(0, 1, 0);
+    glVertex3dv(boundingBox[0].ptr());
+    glVertex3dv(boundingBox[4].ptr());
+
+    glVertex3dv(boundingBox[1].ptr());
+    glVertex3dv(boundingBox[5].ptr());
+
+    glVertex3dv(boundingBox[3].ptr());
+    glVertex3dv(boundingBox[7].ptr());
+
+    glVertex3dv(boundingBox[2].ptr());
+    glVertex3dv(boundingBox[6].ptr());
+    glEnd();
+
+//    glBegin(GL_LINES);
+//    glColor3d(1, 0, 0);
+//    glVertex3dv(coordSys[0].ptr());
+//    glVertex3dv(coordSys[1].ptr());
+//    glVertex3dv(coordSys[2].ptr());
+//    glVertex3dv(coordSys[3].ptr());
+//    glVertex3dv(coordSys[4].ptr());
+//    glVertex3dv(coordSys[5].ptr());
+
+//    glEnd();
     glPopMatrix();
+    glEnable(GL_LIGHTING);
 }
 
 void CGView::initializeGL() {
@@ -311,6 +352,7 @@ void CGView::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
     drawMesh();
+
 
 }
 
@@ -389,7 +431,7 @@ void CGView::keyPressEvent( QKeyEvent * event) {
         updateGL();
         break;
     case Qt::Key_PageDown :
-       angleZ-=2;
+        angleZ-=2;
         updateGL();
         break;
     }

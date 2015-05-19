@@ -1030,26 +1030,5 @@ inline bool equivalent(double a,double b,double epsilon=1e-6) {
   double delta = b-a; return delta<0.0?delta>=-epsilon:delta<=epsilon; 
 }
 
-//class OBB{
-//public:
-
-//    float c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
-//    Matrix4d c;
-//    Matrix4d V;
-//    int nrot;
-//    Vector4d d;
-
-//    OBB(const std::vector<Vector3d>& p);
-//    void draw();
-//};
-
-//class AABB{
-//  public:
-//    Vector3d huellQuader [8];
-//    double xmin,xmax, ymin, ymax, zmin, zmax;
-//     AABB(const std::vector<Vector3d> p);
-//    bool intersect (const AABB& B);
-//    void draw(double rot, double gruen, double blau);
-//};
 
 #endif

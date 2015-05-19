@@ -83,7 +83,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent*);
 	void wheelEvent(QWheelEvent*);
     void keyPressEvent(QKeyEvent*);
-    void drawOBB();
+    void drawOBB(std::vector<Vector3d>& p);
 
 	CGMainWindow *main;
 

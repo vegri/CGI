@@ -19,7 +19,22 @@ OBB::OBB(const std::vector<Vector3d>& p){
     }
     c=Matrix4d(c11,c12,c13,0,c12,c22,c23,0,c13,c23,c33,0,0,0,0,1);
     c.jacobi(d, V, nrot);
-    axis1(V[0][0], V[0][1], V[0][2]);
+    axis1=Vector3d(V(0,0), V(1,0), V(2,0));
+    axis2=Vector3d(V(0,1), V(1,1), V(2,1));
+    axis3=Vector3d(V(0,2), V(1,2), V(2,2));
+    a1=d[0];
+    a2=d[1];
+    a3=d[2];
+//    std::cout <<"axis 1: " << axis1[0] << ", " << axis1[1] << ", " << axis1[2] << std::endl;
+//    std::cout <<"axis 2: " << axis2[0] << ", " << axis2[1] << ", " << axis2[2] << std::endl;
+//    std::cout <<"axis 3: " << axis3[0] << ", " << axis3[1] << ", " << axis3[2] << std::endl;
+    std::cout <<"eigenwert a1: " <<  a1 << std::endl;
+    std::cout <<"eigenwert a2: " <<  a2 << std::endl;
+    std::cout <<"eigenwert a3: " <<  a3 << std::endl;
+
+
+
+
 }
 
 AABB::AABB(const std::vector<Vector3d> p){
