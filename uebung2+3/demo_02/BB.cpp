@@ -5,8 +5,9 @@
 #include "BB.h"
 
 
-OBB::OBB(const std::vector<Vector3d>& p){
+OBB::OBB(const std::vector<Vector3d>& vertices){
     //calculate covariance matrix
+    p=vertices;
     c11=0, c22=0, c33=0, c12=0, c13=0, c23=0;
 
     for(unsigned int i=0;i<p.size();i++) {
@@ -22,19 +23,84 @@ OBB::OBB(const std::vector<Vector3d>& p){
     axis1=Vector3d(V(0,0), V(1,0), V(2,0));
     axis2=Vector3d(V(0,1), V(1,1), V(2,1));
     axis3=Vector3d(V(0,2), V(1,2), V(2,2));
-    a1=d[0];
-    a2=d[1];
-    a3=d[2];
-//    std::cout <<"axis 1: " << axis1[0] << ", " << axis1[1] << ", " << axis1[2] << std::endl;
-//    std::cout <<"axis 2: " << axis2[0] << ", " << axis2[1] << ", " << axis2[2] << std::endl;
-//    std::cout <<"axis 3: " << axis3[0] << ", " << axis3[1] << ", " << axis3[2] << std::endl;
-    std::cout <<"eigenwert a1: " <<  a1 << std::endl;
-    std::cout <<"eigenwert a2: " <<  a2 << std::endl;
-    std::cout <<"eigenwert a3: " <<  a3 << std::endl;
+    a1=0;
+    a2=0;
+    a3=0;
+    std::cout <<"axis 1: " << axis1[0] << ", " << axis1[1] << ", " << axis1[2] << std::endl;
+    std::cout <<"axis 2: " << axis2[0] << ", " << axis2[1] << ", " << axis2[2] << std::endl;
+    std::cout <<"axis 3: " << axis3[0] << ", " << axis3[1] << ", " << axis3[2] << std::endl;
+//    std::cout <<"1. ev: " <<  axis1[0]  << std::endl;
+//    std::cout <<"2. ev: " <<  a2 << std::endl;
+//    std::cout <<"3. ev: " <<  a3 << std::endl;
 
+    for(int i=0; i<3; i++){
+        if(a1<V(0,i)){
+            a1=V(0,i);
+        }
+    }
+    for(int i=0; i<3; i++){
+        if(a2<V(1,i)){
+            a2=V(1,i);
+        }
+    }
+    for(int i=0; i<3; i++){
+        if(a3<V(2,i)){
+            a3=V(2,i);
+        }
+    }
+    center=Vector3d(0,0,0);
+        std::cout <<"a1: " <<  a1  << std::endl;
+        std::cout <<"a2: " <<  a2 << std::endl;
+        std::cout <<"a3: " <<  a3 << std::endl;
 
+}
 
+bool OBB::intersect(const OBB& B){
+    Vector3d c=center-B.center;
+    std::vector<Vector3d> v;
+    v.resize(15);
+    v.push_back(axis1);
+    v.push_back(axis2);
+    v.push_back(axis3);
+    v.push_back(B.axis1);
+    v.push_back(B.axis2);
+    v.push_back(B.axis3);
+    v.push_back(axis1%B.axis1);
+    v.push_back(axis1%B.axis2);
+    v.push_back(axis1%B.axis3);
+    v.push_back(axis2%B.axis1);
+    v.push_back(axis2%B.axis2);
+    v.push_back(axis2%B.axis3);
+    v.push_back(axis3%B.axis1);
+    v.push_back(axis3%B.axis2);
+    v.push_back(axis3%B.axis3);
+    for(unsigned int i=0; i<v.size(); i++){
+        if(v[i]*c < (a1*abs(axis1*v[i])+a2*abs(axis2*v[i])+a3*abs(axis3*v[i]) + B.a1*abs(B.axis1*v[i]) + B.a2*abs(B.axis2*v[i]) + B.a3*abs(B.axis3*v[i]))){
+            return true;
+        }
+    }
+    return false;
+}
 
+void OBB::splitOBB(const OBB& A, OBB& A1, OBB& A2){
+
+    float longestSide=0;
+    Vector3d longestAxis;
+    if(longestSide<a1){
+        longestSide=a1;
+        longestAxis=axis1;
+    }
+    if(longestSide<a2){
+        longestSide=a2;
+        longestAxis=axis2;
+    }
+    if(longestSide<a3){
+        longestSide=a3;
+        longestAxis=axis3;
+    }
+    for(unsigned int i=0;i<p.size();i++) {
+
+    }
 }
 
 AABB::AABB(const std::vector<Vector3d> p){

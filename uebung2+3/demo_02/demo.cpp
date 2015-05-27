@@ -251,8 +251,9 @@ void CGView::drawOBB(std::vector<Vector3d> &p){
     glPushMatrix();
     glColor3d(1,0,0);
     Matrix4d coordTrafo;
+        coordTrafo.print();
     coordTrafo.makeIdentity();
-    coordTrafo.print();
+
     coordTrafo.makeRotate(Vector3d(0,1,0), obbhuelle.axis1);
     //coord.makeRotate(Vector3d(1,0,0), obbhuelle.axis2);
 
@@ -266,14 +267,14 @@ void CGView::drawOBB(std::vector<Vector3d> &p){
 
     // Vector3d v1=Vector3d()
     Vector3d boundingBox [8];
-    boundingBox[0]=coordTrafo*Vector3d(1/obbhuelle.a1,1/obbhuelle.a2,1/obbhuelle.a3);
-    boundingBox[1]=coordTrafo*Vector3d(1/obbhuelle.a1,1/obbhuelle.a2,-1/obbhuelle.a3);
-    boundingBox[2]=coordTrafo*Vector3d(1/obbhuelle.a1,-1/obbhuelle.a2,1/obbhuelle.a3);
-    boundingBox[3]=coordTrafo*Vector3d(1/obbhuelle.a1,-1/obbhuelle.a2,-1/obbhuelle.a3);
-    boundingBox[4]=coordTrafo*Vector3d(-1/obbhuelle.a1,1/obbhuelle.a2,1/obbhuelle.a3);
-    boundingBox[5]=coordTrafo*Vector3d(-1/obbhuelle.a1,1/obbhuelle.a2,-1/obbhuelle.a3);
-    boundingBox[6]=coordTrafo*Vector3d(-1/obbhuelle.a1,-1/obbhuelle.a2,1/obbhuelle.a3);
-    boundingBox[7]=coordTrafo*Vector3d(-1/obbhuelle.a1,-1/obbhuelle.a2,-1/obbhuelle.a3);
+    boundingBox[0]=coordTrafo*Vector3d(obbhuelle.a1,obbhuelle.a2,obbhuelle.a3);
+    boundingBox[1]=coordTrafo*Vector3d(obbhuelle.a1,obbhuelle.a2,-obbhuelle.a3);
+    boundingBox[2]=coordTrafo*Vector3d(obbhuelle.a1,-obbhuelle.a2,obbhuelle.a3);
+    boundingBox[3]=coordTrafo*Vector3d(obbhuelle.a1,-obbhuelle.a2,-obbhuelle.a3);
+    boundingBox[4]=coordTrafo*Vector3d(-obbhuelle.a1,obbhuelle.a2,obbhuelle.a3);
+    boundingBox[5]=coordTrafo*Vector3d(-obbhuelle.a1,obbhuelle.a2,-obbhuelle.a3);
+    boundingBox[6]=coordTrafo*Vector3d(-obbhuelle.a1,-obbhuelle.a2,obbhuelle.a3);
+    boundingBox[7]=coordTrafo*Vector3d(-obbhuelle.a1,-obbhuelle.a2,-obbhuelle.a3);
 
     glBegin(GL_LINE_LOOP);
     glColor3d(0, 1, 0);
