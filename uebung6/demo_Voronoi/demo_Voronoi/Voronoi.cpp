@@ -34,6 +34,7 @@ CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
 
     // Create a menu
     QMenu *file = new QMenu("&File",this);
+    file->addAction ("Load Polyhedron", this, SLOT(loadPolyhedron()), Qt::CTRL+Qt::Key_G);
     file->addAction ("Quit", this, SLOT(close()), Qt::CTRL+Qt::Key_Q);
 
     menuBar()->addMenu(file);
@@ -96,6 +97,50 @@ void CGView::initializeGL() {
     randomSimplex();
     VoronoiCellSize = 0;
 
+}
+
+void CGMainWindow::loadPolyhedron() {
+    QString filename = QFileDialog::getOpenFileName(this, "Load generator model ...", QString(), "OFF files (*.off)" );
+
+    if (filename.isEmpty()) return;
+    statusBar()->showMessage ("Loading model ...");
+    std::ifstream file(filename.toLatin1());
+    //int vn,fn,en;
+
+    ogl->min = +std::numeric_limits<double>::max();
+    ogl->max = -std::numeric_limits<double>::max();
+
+    std::string s;
+    file >> s;
+
+
+    file >> ogl->vn >> ogl->fn >> ogl->en;
+    std::cout << "model loaded"<< std::endl;
+    std::cout << "number of vertices : " << ogl->vn << std::endl;
+    std::cout << "number of faces    : " << ogl->fn << std::endl;
+    std::cout << "number of edges    : " << ogl->en << std::endl;
+
+    ogl->P1.resize(ogl->vn);
+
+    for(int i=0;i<ogl->vn;i++) {
+        file >> ogl->P1[i][0] >> ogl->P1[i][1] >> ogl->P1[i][2];
+    }
+
+//    ogl->ind1.resize(ogl->fn*3);
+
+//    for(int i=0;i<ogl->fn;i++) {
+//        int k;
+//        file >> k;
+//        file >> ogl->ind1[3*i];
+//        file >> ogl->ind1[3*i+1];
+//        file >> ogl->ind1[3*i+2];
+
+//    }
+
+    file.close();
+
+    ogl->updateGL();
+    statusBar()->showMessage ("Loading generator model done." ,3000);
 }
 
 
@@ -245,12 +290,14 @@ Vector3d CGView::com(const Vector3d &a, const Vector3d &b,
     return com=com/3;
 }
 
-Vector3d CGView::support(const std::vector<Vector3d> &p, const Vector3d &d){
+Vector3d CGView::support(const Vector3d &d){
     Vector3d max;
     float pd=0;
-    for(unsigned int i=0; i<p.size(); i++){
-        if(p[i]*d>pd){
-            max=p[i];
+    for(unsigned int i=0; i<point.size(); i++){
+        float pd_cur=point[i]*d;
+        if(pd_cur>pd){
+            pd=pd_cur;
+            max=point[i];
         }
     }
     return max;
