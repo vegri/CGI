@@ -322,7 +322,7 @@ bool CGView::simplexSolver(const Vector3d &p,
         //        Q.clear();
         //        Q.push_back(a);
         // ADD YOUR CODE HERE
-        return false;
+        return true;
     }
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
@@ -340,13 +340,13 @@ bool CGView::simplexSolver(const Vector3d &p,
             Q.resize(1);
             color=Vector3d(1.0,0.9,0.0);
             dir=p-a;
-            return false;
+            return true;
         }
         if((p-b)*(a-b)<=0){
             Q.resize(1);
             color=Vector3d(0.0,1.0,0.25);
             dir=p-b;
-            return false;
+            return true;
         }
 
         //else: p is in V_ab
@@ -355,7 +355,7 @@ bool CGView::simplexSolver(const Vector3d &p,
         Q.push_back(b);
         dir=((b-a)%(p-a))%(b-a);
         color=Vector3d(0.2,0.5,1.0);
-        return false;
+        return true;
     }
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
@@ -373,17 +373,17 @@ bool CGView::simplexSolver(const Vector3d &p,
         if(voronoiPoint(Q, p, a, b, c)){
             color=Vector3d(1.0,0.9,0.0);
             dir=p-a;
-            return false;
+            return true;
         }
         if(voronoiPoint(Q, p, b, a, c)){
             color=Vector3d(0.0,1.0,0.25);
             dir=p-b;
-            return false;
+            return true;
         }
         if(voronoiPoint(Q, p, c, a, b)){
             color=Vector3d(0.2,0.5,1.0);
             dir=p-c;
-            return false;
+            return true;
         }
 
         //Test if p is in V_ab, V_ca, V_cb
@@ -391,19 +391,19 @@ bool CGView::simplexSolver(const Vector3d &p,
         if(voronoiEdge(Q, p, a, b)){
             color=Vector3d(1.0,0.9,0.0);
             dir=((b-a)%(p-a))%(b-a);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, b, c)){
             color=Vector3d(0.0,1.0,0.25);
             dir=((c-b)%(p-b))%(c-b);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, c, a)){
             color=Vector3d(0.2,0.5,1.0);
             dir=((a-c)%(p-c))%(a-c);
-            return false;
+            return true;
         }
 
         //else: p is in V_abc
@@ -413,7 +413,7 @@ bool CGView::simplexSolver(const Vector3d &p,
         Q.push_back(c);
         color=Vector3d(0.0,1.0,0.25);
         dir=n_abc; //Orientierung prüfen?
-        return false;
+        return true;
     }
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
@@ -432,22 +432,22 @@ bool CGView::simplexSolver(const Vector3d &p,
         if(voronoiPoint(Q, p, a, b, c, d)){
             color=Vector3d(1.0,0.9,0.0);
             dir=p-a;
-            return false;
+            return true;
         }
         if(voronoiPoint(Q, p, b, a, c, d)){
             color=Vector3d(0.0,1.0,0.25);
             dir=p-b;
-            return false;
+            return true;
         }
         if(voronoiPoint(Q, p, c, b, a, d)){
             color=Vector3d(0.2,0.5,1.0);
             dir=p-c;
-            return false;
+            return true;
         }
         if(voronoiPoint(Q, p, d, b, c, a)){
             color=Vector3d(1.0,0.0,0.15);
             dir=p-d;
-            return false;
+            return true;
         }
 
         //Test if p is in V_ab, V_bc, V_cd, V_da, V_ca, V_bd
@@ -455,37 +455,37 @@ bool CGView::simplexSolver(const Vector3d &p,
         if(voronoiEdge(Q, p, a, b, n_abc, n_bad)){
             color=Vector3d(1.0,0.9,0.0);
             dir=((b-a)%(p-a))%(b-a);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, b, c, n_abc, n_bdc)){
             color=Vector3d(0.0,1.0,0.25);
             dir=((c-b)%(p-b))%(c-b);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, b, d, n_bdc, n_bad)){
             color=Vector3d(0.2,0.5,1.0);
             dir=((d-b)%(p-b))%(d-b);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, a, d, n_bad, n_dac)){
             color=Vector3d(1.0,0.0,0.15);
             dir=((d-a)%(p-a))%(d-a);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, a, c, n_dac, n_abc)){
             color=Vector3d(0.9,0.0,0.9);
             dir=((c-a)%(p-a))%(c-a);
-            return false;
+            return true;
         }
 
         if(voronoiEdge(Q, p, c, d,n_dac, n_bdc)){
             color=Vector3d(0.0,0.0,0.0);
             dir=((d-c)%(p-c))%(d-c);
-            return false;
+            return true;
         }
 
         //Test if p is in V_abc, V_bdc, V_adb, V_dac
@@ -493,25 +493,25 @@ bool CGView::simplexSolver(const Vector3d &p,
         if(voronoiSurface(Q, p, a, b, c, n_abc)){
             color=Vector3d(1.0,0.9,0.0);
             dir=n_abc; //Orientierung prüfen?
-            return false;
+            return true;
         }
 
         if(voronoiSurface(Q, p, b, d, c, n_bdc)){
             color=Vector3d(0.0,1.0,0.25);
             dir=n_bdc; //Orientierung prüfen?
-            return false;
+            return true;
         }
 
         if(voronoiSurface(Q, p, a, d, b, n_bad)){
             color=Vector3d(0.2,0.5,1.0);
             dir=n_bad; //Orientierung prüfen?
-            return false;
+            return true;
         }
 
         if(voronoiSurface(Q, p, d, a, c, n_dac)){
             color=Vector3d(1.0,0.0,0.2);
             dir=n_dac; //Orientierung prüfen?
-            return false;
+            return true;
         }
 
         //else: p is in V_abcd
@@ -521,9 +521,28 @@ bool CGView::simplexSolver(const Vector3d &p,
         Q.push_back(c);
         Q.push_back(d);
         color=Vector3d(0.2,0.5,1.0);
-        return false;
+        //dir=??
+        return true;
     }
     return false;
+}
+
+void CGView::GJK(){
+    dir=P1[0];
+    Vector3d v=support(dir);
+    std::vector<Vector3d> Q={v};
+    dir=v*(-1);
+
+    while(true){
+        v=support(dir);
+        Q.push_back(v);
+        if(v*dir<0){
+            //no collision
+        }
+        if(simplexSolver(Vector3d(0.0,0.0,0.0),Q,dir,Vector3d(0.0,0.0,0.0))){
+            //collision
+        }
+    }
 }
 
 
