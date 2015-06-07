@@ -115,6 +115,8 @@ protected:
                        Vector3d &dir, Vector3d &color);
     bool surfaceTriangle(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                                  const Vector3d &c, const Vector3d &normal);
+    bool voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
+                                 const Vector3d &c, const Vector3d &d);
 
     void randomSimplex();
     void correctSimplexOrientation(std::vector<Vector3d> & simplex);

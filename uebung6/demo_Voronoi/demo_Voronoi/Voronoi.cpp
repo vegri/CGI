@@ -192,6 +192,15 @@ bool CGView::surfaceTriangle(std::vector<Vector3d> &Q, const Vector3d &p, const 
     return true;
 }
 
+bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
+                             const Vector3d &c, const Vector3d &d){
+    if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
+        Q.push_back(a);
+        return true;
+    }
+    return false;
+}
+
 
 // find feature of Q closest to p and direction of feature closest to p
 bool CGView::simplexSolver(const Vector3d &p,
@@ -294,50 +303,25 @@ bool CGView::simplexSolver(const Vector3d &p,
         Q.clear();
 
 
-        bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
-                                     const Vector3d &c, const Vector3d &d){
-            if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
-                Q.push_back(a);
-                return true;
-            }
-            return false;
-        }
-
         //Test if p in V_a, V_b, V_c, V_d
 
-        //voronoiPoint(Q, p, a, b, c);
-        //        if(voronoiPoint(Q, p, a, b, c, d)){
-        //            color=Vector3d(1.0,0.9,0.0);
-        //            return false;
-        //        }
-        if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
-            Q.push_back(a);
-            return false;
-        }
-        //        if(voronoiPoint(Q, p, b, a, c, d)){
-        //            color=Vector3d(0.0,1.0,0.25)
-        //            return false;
-        //        }
-        if(((p-b)*(a-b)<=0) && ((p-b)*(c-b)<=0) && ((p-b)*(d-b)<=0)){
-//            Q.push_back(b);
-            return false;
-        }
-        //        if(voronoiPoint(Q, p, c, b, a, d)){
-        //            color=Vector3d(0.2,0.0,1.0);
-        //            return false;
-        //        }
-        if(((p-c)*(b-c)<=0) && ((p-c)*(d-c)<=0) && ((p-c)*(a-c)<=0)){
-//            Q.push_back(c);
-            return false;
-        }
-        //        if(voronoiPoint(Q, p, d, b, c, a)){
-        //            color=Vector3d(1.0,0.0,0.15);
-        //            return false;
-        //        }
-        if(((p-d)*(b-d)<=0) && ((p-d)*(a-d)<=0) && ((p-d)*(c-d)<=0)){
-//            Q.push_back(d);
-            return false;
-        }
+                if(voronoiPoint(Q, p, a, b, c, d)){
+                    color=Vector3d(1.0,0.9,0.0);
+                    return false;
+                }
+                if(voronoiPoint(Q, p, b, a, c, d)){
+                    color=Vector3d(0.0,1.0,0.25);
+                    return false;
+                }
+                if(voronoiPoint(Q, p, c, b, a, d)){
+                    color=Vector3d(0.2,0.0,1.0);
+                    return false;
+                }
+                if(voronoiPoint(Q, p, d, b, c, a)){
+                    color=Vector3d(1.0,0.0,0.15);
+                    return false;
+                }
+
 
         //Test if p in V_ab, V_bc, V_cd, V_da
         Vector3d n_abc=(b-a)%(c-a);
