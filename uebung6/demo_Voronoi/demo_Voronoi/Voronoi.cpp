@@ -179,7 +179,7 @@ void CGView::drawBoundingBox() {
 
 
 bool CGView::voronoiSurface(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
-                             const Vector3d &c, const Vector3d &normal){
+                            const Vector3d &c, const Vector3d &normal){
     Vector3d h1=(b-a)%normal;
     Vector3d h2=(c-b)%normal;
     Vector3d h3=(a-c)%normal;
@@ -210,7 +210,7 @@ bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vec
 }
 
 bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
-                     const Vector3d &normal1, const Vector3d &normal2){
+                         const Vector3d &normal1, const Vector3d &normal2){
 
     Vector3d h1=(a-b)%normal1;
     Vector3d h2=(b-a)%normal2;
@@ -252,10 +252,10 @@ bool CGView::simplexSolver(const Vector3d &p,
                            Vector3d &dir, Vector3d &color){
 
     if(Q.size() == 1){
-        Vector3d a = Q.at(0);
-        Q.clear();
-        Q.push_back(a);
-        // ADD YOUR CODE HERE THATS BULLSHIT HERE
+        //        Vector3d a = Q.at(0);
+        //        Q.clear();
+        //        Q.push_back(a);
+        // ADD YOUR CODE HERE
         return false;
     }
 
@@ -277,9 +277,9 @@ bool CGView::simplexSolver(const Vector3d &p,
             return false;
         }
 
-        //else: p in V_ab
+        //else: p is in V_ab
         Q.resize(2);
-        color=Vector3d(0.2,0.0,1.0);
+        color=Vector3d(0.2,0.5,1.0);
         return false;
     }
 
@@ -300,7 +300,7 @@ bool CGView::simplexSolver(const Vector3d &p,
             return false;
         }
         if(voronoiPoint(Q, p, c, a, b)){
-            color=Vector3d(0.2,0.0,1.0);
+            color=Vector3d(0.2,0.5,1.0);
             return false;
         }
 
@@ -311,38 +311,17 @@ bool CGView::simplexSolver(const Vector3d &p,
             return false;
         }
 
-//        Vector3d h1=(b-a)%n_abc;
-//        if((p-a)*h1>=0){
-//            Q.resize(2);
-//            color=Vector3d(1.0,0.9,0.0);
-//            return false;
-//        }
-
         if(voronoiEdge(Q, p, b, c)){
             color=Vector3d(0.0,1.0,0.25);
             return false;
         }
 
-//        Vector3d h2=(c-b)%n_abc;
-//        if((p-b)*h2>=0){
-//            Q.resize(2);
-//            color=Vector3d(0.0,1.0,0.25);
-//            return false;
-//        }
-
         if(voronoiEdge(Q, p, c, a)){
-            color=Vector3d(0.2,0.0,1.0);
+            color=Vector3d(0.2,0.5,1.0);
             return false;
         }
 
-//        Vector3d h3=(a-c)%n_abc;
-//        if((p-c)*h3>=0){
-//            Q.resize(2);
-//            color=Vector3d(0.2,0.0,1.0);
-//            return false;
-//        }
-
-        //else: p in V_abc
+        //else: p is in V_abc
         Q.resize(3);
         color=Vector3d(0.0,1.0,0.25);
 
@@ -356,7 +335,7 @@ bool CGView::simplexSolver(const Vector3d &p,
         Vector3d d = Q.at(3);
         Q.clear();
 
-        //Test if p in V_a, V_b, V_c, V_d
+        //Test if p is in V_a, V_b, V_c, V_d
 
         if(voronoiPoint(Q, p, a, b, c, d)){
             color=Vector3d(1.0,0.9,0.0);
@@ -367,7 +346,7 @@ bool CGView::simplexSolver(const Vector3d &p,
             return false;
         }
         if(voronoiPoint(Q, p, c, b, a, d)){
-            color=Vector3d(0.2,0.0,1.0);
+            color=Vector3d(0.2,0.5,1.0);
             return false;
         }
         if(voronoiPoint(Q, p, d, b, c, a)){
@@ -375,7 +354,7 @@ bool CGView::simplexSolver(const Vector3d &p,
             return false;
         }
 
-        //Test if p in V_ab, V_bc, V_cd, V_da
+        //Test if p is in V_ab, V_bc, V_cd, V_da, V_ca, V_bd
 
         if(voronoiEdge(Q, p, a, b, n_abc, n_bad)){
             color=Vector3d(1.0,0.9,0.0);
@@ -388,12 +367,22 @@ bool CGView::simplexSolver(const Vector3d &p,
         }
 
         if(voronoiEdge(Q, p, b, d, n_bdc, n_bad)){
-            color=Vector3d(0.2,0.0,1.0);
+            color=Vector3d(0.2,0.5,1.0);
             return false;
         }
 
         if(voronoiEdge(Q, p, a, d, n_bad, n_dac)){
             color=Vector3d(1.0,0.0,0.15);
+            return false;
+        }
+
+        if(voronoiEdge(Q, p, a, c, n_dac, n_abc)){
+            color=Vector3d(0.9,0.0,0.9);
+            return false;
+        }
+
+        if(voronoiEdge(Q, p, c, d,n_dac, n_bdc)){
+            color=Vector3d(0.0,0.0,0.0);
             return false;
         }
 
@@ -410,7 +399,7 @@ bool CGView::simplexSolver(const Vector3d &p,
         }
 
         if(voronoiSurface(Q, p, a, d, b, n_bad)){
-            color=Vector3d(0.2,0.0,1.0);
+            color=Vector3d(0.2,0.5,1.0);
             return false;
         }
 
@@ -421,9 +410,10 @@ bool CGView::simplexSolver(const Vector3d &p,
 
         //else: p is in V_abcd
         Q.resize(4);
+        color=Vector3d(0.2,0.5,1.0);
         return false;
     }
-    color=Vector3d(0.2,0.5,1.0);
+    //color=Vector3d(0.2,0.5,1.0);
     return false;
 }
 
@@ -460,12 +450,7 @@ void CGView::paintGL() {
 
         feature = simplex;
         Vector3d dir, color;
-        simplexSolver(
-                    Vector3d(point[i][0],
-                    point[i][1],
-                point[i][2]),
-                feature,
-                dir, color);
+        simplexSolver(Vector3d(point[i][0], point[i][1], point[i][2]), feature, dir, color);
         int num = feature.size();
 
         gluQuadricDrawStyle(quadric, GLU_FILL);
@@ -477,7 +462,7 @@ void CGView::paintGL() {
         glPopMatrix();
     }
 
-    //Berechne Dreiecksnormalen
+    //Calculate triangular normals
 
     if(simplex.size()==3){
         n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
@@ -490,7 +475,7 @@ void CGView::paintGL() {
         n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
     }
 
-    //Male Dreiecksnormalen
+    //Draw triangular normals
 
     if(simplex.size()==3){
         Vector3d coM=com(simplex[0],simplex[1],simplex[2]);
@@ -613,12 +598,8 @@ void CGView::mouseMoveEvent(QMouseEvent* event) {
     updateGL();
 }
 
-
-
-
 void CGView::keyPressEvent( QKeyEvent * event) 
 {
-
     switch (event->key()) {
     case Qt::Key_Space :
         randomSimplex();
@@ -633,13 +614,10 @@ void CGView::keyPressEvent( QKeyEvent * event)
             VoronoiCellSize+=5;
         std::cout << "VoronoiCellSize: " << VoronoiCellSize << std::endl;
         break;
-
-
     }
-
-
     updateGL();
 }
+
 int main (int argc, char **argv) {
     QApplication app(argc, argv);
 
@@ -654,4 +632,3 @@ int main (int argc, char **argv) {
 
     return app.exec();
 }
-
