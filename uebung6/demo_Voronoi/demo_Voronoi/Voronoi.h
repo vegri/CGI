@@ -80,8 +80,8 @@ public:
     bool wireframe_on, bbox_on;
 
     bool show_circle;
-    int vn,fn,en,vn2,fn2,en2;
-    std::vector<Vector3d> P1, P2;
+    int vn,fn,en;
+    std::vector<Vector3d> P1;
 
     unsigned int picked;
 
