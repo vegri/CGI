@@ -183,11 +183,11 @@ bool CGView::surfaceTriangle(std::vector<Vector3d> &Q, const Vector3d &p, const 
     Vector3d h1=(b-a)%normal;
     Vector3d h2=(c-b)%normal;
     Vector3d h3=(a-c)%normal;
-    if(((p-a)*h1<=0) && ((p-b)*h2<=0) && ((p-c)*h3<=0)){
+    if(((p-a)*h1<=0) && ((p-b)*h2<=0) && ((p-c)*h3<=0) && ((p-a)*normal>0)){
         Q.resize(3);
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
@@ -375,65 +375,61 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p in V_abc, V_bdc, V_adb, V_dac
 
 
-        //        if(surfaceTriangle(p, a, b, c, n_abc)){
-        //            color=Vector3d(1.0,0.9,0.0);
-        //            return false;
-        //        }
+                if(surfaceTriangle(Q, p, a, b, c, n_abc)){
+                    color=Vector3d(1.0,0.9,0.0);
+                    return false;
+                }
 
-        Vector3d h5a=(b-a)%n_abc;
-        Vector3d h5b=(c-b)%n_abc;
-        Vector3d h5c=(a-c)%n_abc;
-//                Vector3d h5a=n_abc%(b-a);
-//                Vector3d h5b=n_abc%(c-b);
-//                Vector3d h5c=n_abc%(a-c);
-        if(((p-a)*h5a<=0) && ((p-b)*h5b<=0) && ((p-c)*h5c<=0) && ((p-a)*n_abc>0)){ ///funzt
-             //           Q.resize(3);
-            //            color=Vector3d(1.0,0.9,0.0);
-            color=Vector3d(1.0,0.9,0.0);
-            return false;
-        }
+//        Vector3d h5a=(b-a)%n_abc;
+//        Vector3d h5b=(c-b)%n_abc;
+//        Vector3d h5c=(a-c)%n_abc;
+//        if(((p-a)*h5a<=0) && ((p-b)*h5b<=0) && ((p-c)*h5c<=0) && ((p-a)*n_abc>0)){ ///funzt
+//             //           Q.resize(3);
+//            color=Vector3d(1.0,0.9,0.0);
+//            return false;
+//        }
 
-        //        if(surfaceTriangle(p, b, d, c, n_bdc)){
-        //            color=Vector3d(0.0,1.0,0.25);
-        //            return false;
-        //        }
+                if(surfaceTriangle(Q, p, b, d, c, n_bdc)){
+                    color=Vector3d(0.0,1.0,0.25);
+                    return false;
+                }
 
-        Vector3d h6a=(d-b)%n_bdc;
-        Vector3d h6b=(c-d)%n_bdc;
-        Vector3d h6c=(b-c)%n_bdc;
-        if(((p-b)*h6a<=0) && ((p-d)*h6b<=0) && ((p-c)*h6c<=0) && ((p-b)*n_bdc>0)){ ///funzt
-               //        Q.resize(3);
-            color=Vector3d(0.0,1.0,0.25);
-            return false;
-        }
+//        Vector3d h6a=(d-b)%n_bdc;
+//        Vector3d h6b=(c-d)%n_bdc;
+//        Vector3d h6c=(b-c)%n_bdc;
+//        if(((p-b)*h6a<=0) && ((p-d)*h6b<=0) && ((p-c)*h6c<=0) && ((p-b)*n_bdc>0)){ ///funzt
+//               //        Q.resize(3);
+//            color=Vector3d(0.0,1.0,0.25);
+//            return false;
+//        }
 
-        //        if(surfaceTriangle(p, a, d, b, n_adb)){
-        //            color=Vector3d(0.2,0.0,1.0);
-        //            return false;
-        //        }
+                if(surfaceTriangle(Q, p, a, d, b, n_bad)){
+                    color=Vector3d(0.2,0.0,1.0);
+                    return false;
+                }
 
-        Vector3d h7a=(d-a)%n_bad;
-        Vector3d h7b=(b-d)%n_bad;
-        Vector3d h7c=(a-b)%n_bad;
-        if(((p-a)*h7a<=0) && ((p-d)*h7b<=0) && ((p-b)*h7c<=0) && ((p-d)*n_bad>0)){ ///funzt kind of
-                //        Q.resize(3);
-            color=Vector3d(0.2,0.0,1.0);
-            return false;
-        }
+//        Vector3d h7a=(d-a)%n_bad;
+//        Vector3d h7b=(b-d)%n_bad;
+//        Vector3d h7c=(a-b)%n_bad;
+//        if(((p-a)*h7a<=0) && ((p-d)*h7b<=0) && ((p-b)*h7c<=0) && ((p-d)*n_bad>0)){ ///funzt kind of
+//                //        Q.resize(3);
+//            color=Vector3d(0.2,0.0,1.0);
+//            return false;
+//        }
 
-        //        if(surfaceTriangle(p, d, a, c, n_dac)){
-        //            color=Vector3d(1.0,0.0,0.2);
-        //            return false;
-        //        }
+                if(surfaceTriangle(Q, p, d, a, c, n_dac)){
+                    color=Vector3d(1.0,0.0,0.2);
+                    return false;
+                }
 
-        Vector3d h8a=(a-d)%n_dac;
-        Vector3d h8b=(c-a)%n_dac;
-        Vector3d h8c=(d-c)%n_dac;
-        if(((p-d)*h8a<=0) && ((p-a)*h8b<=0) && ((p-c)*h8c<=0) && ((p-c)*n_dac>0)){ ///funzt
-            Q.resize(3);
-            color=Vector3d(1.0,0.0,0.2);
-            return false;
-        }
+//        Vector3d h8a=(a-d)%n_dac;
+//        Vector3d h8b=(c-a)%n_dac;
+//        Vector3d h8c=(d-c)%n_dac;
+//        if(((p-d)*h8a<=0) && ((p-a)*h8b<=0) && ((p-c)*h8c<=0) && ((p-c)*n_dac>0)){ ///funzt
+//          //  Q.resize(3);
+//            color=Vector3d(1.0,0.0,0.2);
+//            return false;
+//        }
 
         //else: p is in V_abcd
         Q.resize(4);
