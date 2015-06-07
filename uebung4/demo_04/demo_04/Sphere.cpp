@@ -20,35 +20,30 @@ Sphere::Sphere(Vector3d& a, Vector3d& b) {
     Vector3d c=(a-b)*0.5;
     center=b+c;
     radius=c.length();
-    //std::cout << "2 punkte, center= " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
-    //std::cout << "2 punkte, radius= "  << radius << std::endl;
+
 }
 
 // Konstruiere die Umkugel fuer drei Punkte
 Sphere::Sphere(Vector3d& a, Vector3d& b, Vector3d& c) {
 
+    //Berechne dritte Ebene: Dreiecksebene
     Matrix4d triangle = Matrix4d(a[0], a[1], a[2], 0, b[1], b[1], b[2], 0, c[0], c[1], c[2], 0, 0,0,0,1 );
     Matrix4d triangle2;
     triangle2.invert(triangle);
     Vector3d coeffTri=triangle2*Vector3d(1,1,1);
-    //std::cout << "3 punkte, coeffTRI= " << coeffTri[0] << ", " << coeffTri[1] << ", " << coeffTri[2] << std::endl;
 
     Vector3d x=b-a;
     Vector3d y=c-a;
     Matrix4d coeff=Matrix4d(x[0],x[1],x[2],0,y[0],y[1],y[2],0,coeffTri[0],coeffTri[1],coeffTri[2],0,0,0,0,1);
-    std::cout << "3 punkte, coeff= " << std::endl;
-    coeff.print();
+
     Matrix4d coeffInv;
     coeffInv.invert(coeff);
-    std::cout << "3 punkte, coeff invers= " << std::endl;
-    coeffInv.print();
+
     Vector3d centerCoord= coeffInv*Vector3d(b*b-a*a, c*c-a*a, 2)*0.5;
     center=Vector3d(centerCoord[0],centerCoord[1],centerCoord[2]);
-    std::cout << "3 punkte, center= " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
-    Vector3d n=center-a;
-    //radius=(center-a).length();
-    radius=n.length();
-    std::cout << "3 punkte, radius= "  << radius << std::endl;
+
+    radius=(center-a).length();
+
 }
 
 // Konstruiere die Umkugel fuer vier Punkte
@@ -58,18 +53,16 @@ Sphere::Sphere(Vector3d& a, Vector3d& b, Vector3d& c, Vector3d& d) {
     Vector3d y=c-a;
     Vector3d z=d-a;
     Matrix4d coeff=Matrix4d(x[0],x[1],x[2],0,y[0],y[1],y[2],0,z[0],z[1],z[2],0,0,0,0,1);
-    //std::cout << "4 punkte, coeff= " << std::endl;
-    //coeff.print();
+
     Matrix4d coeffInv;
     coeffInv.invert(coeff);
-    //std::cout << "4 punkte, coeff invers= " << std::endl;
-    //coeffInv.print();
+
     Vector3d centerCoord= coeffInv*Vector3d(b*b-a*a, c*c-a*a, d*d-a*a)*0.5;
     center=Vector3d(centerCoord[0],centerCoord[1],centerCoord[2]);
-    //std::cout << "4 punkte, center= " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
-    Vector3d n=center-a;
-    radius=n.length();
-    //std::cout << "4 punkte, radius= "  << radius << std::endl;
+
+    //Vector3d n=;
+    radius=(center-a).length();
+
 }
 
 bool Sphere::isPointInSphere(const Vector3d p, Sphere sphere){
@@ -104,13 +97,11 @@ Sphere Sphere::com(const std::vector<Vector3d>& p) {
 // Berechne die kleinste einschliessende Kugel fuer die Punktmenge
 Sphere::Sphere(const std::vector<Vector3d>& p) {
 
-    std::cout << "laenge p= "  << p.size() << std::endl;
     std::vector<Vector3d> v(p);
     std::sort(v.begin(),v.end());
     v.erase(std::unique(v.begin(),v.end(),epsilonEquals),v.end());
 
     int n = int(v.size());
-    std::cout << "n= "  << n << std::endl;
 
     //random permutation!
     for(int i=n-1;i>0;i--) {

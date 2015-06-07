@@ -66,20 +66,7 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent),
     show_circle=false;
     bbox_on = true;
 
-//    Vector3d c = Vector3d(0.0,0.0,0.0);
-//    Vector3d l = Vector3d(2.0,0.8,0.1);
-//    Matrix4d R = Matrix4d::rotate(0.5,-1.0,0.4,0.5);
-
-//    //Zufallsgenerator fuer Punkte
-//    point.resize(numpoints);
-//    for(int i=0;i<numpoints;i++) {
-//        for(int j=0;j<3;j++)
-//            point[i][j] = l[j]*(double(rand())/RAND_MAX-0.5);
-//        point[i] = R*point[i]+c;
-//    }
-
-
-    //SES = Sphere::com (point);
+    SES = Sphere::com (point);
 
     picked = 0;
     kthPoint=0;
@@ -169,23 +156,10 @@ void CGView::paintGL() {
     GLUquadricObj *quadric;
     quadric = gluNewQuadric();
 
-    //    glDisable (GL_CULL_FACE);
-    //    for(unsigned int i=0;i<point.size();i++) {
-    //        if (i == picked) glColor3d(1.0,0.0,0.0);
-    //        else glColor3d(1.0,1.0,0.0);
-    //        glPushMatrix();
-    //        glTranslated(point[i][0],point[i][1],point[i][2]);
-    //        //glutSolidSphere(0.03,10,10);
-
-    //        gluQuadricDrawStyle(quadric, GLU_FILL);
-    //        gluSphere( quadric , .03 , 10 , 10);
-    //        glPopMatrix();
-    //    }
 
     glDisable (GL_CULL_FACE);
 
     Sphere ses;
-    //std::cout << "ses radius= "  << ses.radius << std::endl;
 
     glColor3d(0.0,1.0,0.0);
     if(kthPoint==0){
@@ -208,9 +182,8 @@ void CGView::paintGL() {
             glColor3d(1.0,0.0,0.0);
             glPushMatrix();
             glTranslated(point[i][0],point[i][1],point[i][2]);
-            //glutSolidSphere(0.03,10,10);
-                      gluQuadricDrawStyle(quadric, GLU_FILL);
-                        gluSphere( quadric , 0.03  , 10 , 10);
+            gluQuadricDrawStyle(quadric, GLU_FILL);
+            gluSphere( quadric , 0.03  , 10 , 10);
             glPopMatrix();
         }
     }
@@ -226,9 +199,8 @@ void CGView::paintGL() {
             glColor3d(1.0,0.0,0.0);
             glPushMatrix();
             glTranslated(point[i][0],point[i][1],point[i][2]);
-            //glutSolidSphere(0.03,10,10);
-                      gluQuadricDrawStyle(quadric, GLU_FILL);
-                        gluSphere( quadric , 0.03  , 10 , 10);
+            gluQuadricDrawStyle(quadric, GLU_FILL);
+            gluSphere( quadric , 0.03  , 10 , 10);
             glPopMatrix();
         }
     }
@@ -244,29 +216,26 @@ void CGView::paintGL() {
             glColor3d(1.0,0.0,0.0);
             glPushMatrix();
             glTranslated(point[i][0],point[i][1],point[i][2]);
-            //glutSolidSphere(0.03,10,10);
-                      gluQuadricDrawStyle(quadric, GLU_FILL);
-                        gluSphere( quadric , 0.03  , 20 , 20);
+            gluQuadricDrawStyle(quadric, GLU_FILL);
+            gluSphere( quadric , 0.03  , 20 , 20);
             glPopMatrix();
         }
     }
     if(kthPoint>3){
-         ses = Sphere(point);
-         glPushMatrix();
-         glTranslated(ses.center[0],ses.center[1],ses.center[2]);
-         gluQuadricDrawStyle(quadric, GLU_FILL);
-         gluSphere( quadric , ses.radius , 30 , 30);
-         glPopMatrix();
-
+        ses = Sphere(point);
+        glPushMatrix();
+        glTranslated(ses.center[0],ses.center[1],ses.center[2]);
+        gluQuadricDrawStyle(quadric, GLU_FILL);
+        gluSphere( quadric , ses.radius , 30 , 30);
+        glPopMatrix();
 
         for(unsigned int i=4;i<point.size();i++) {
-            if (i == picked) glColor3d(1.0,0.0,0.0);
-            glColor3d(1.0,1.0,0.0);
+            glColor3d(1.0,0.0,0.0);
+            if (i == picked) glColor3d(1.0,1.0,0.0);
             glPushMatrix();
             glTranslated(point[i][0],point[i][1],point[i][2]);
-            //glutSolidSphere(0.03,10,10);
-                      gluQuadricDrawStyle(quadric, GLU_FILL);
-                        gluSphere( quadric , 0.03  , 10 , 10);
+            gluQuadricDrawStyle(quadric, GLU_FILL);
+            gluSphere( quadric , 0.03  , 10 , 10);
             glPopMatrix();
         }
     }
@@ -283,23 +252,9 @@ void CGView::paintGL() {
         glTranslated(SES.center.x(), SES.center.y(), SES.center.z());
         gluQuadricDrawStyle(quadric, GLU_FILL);
         gluSphere( quadric , SES.radius , 40 , 40);
-
-        //glutSolidSphere(SES.radius,40,40);
         glPopMatrix();
     }
 
-//        Vector3d a=Vector3d(2,1,0);
-////        Vector3d b=Vector3d(4,1,0);
-////        Vector3d c=Vector3d(3,2,0);
-//        Vector3d b=Vector3d(4,1,5);
-//        Vector3d c=Vector3d(3,2,7);
-//        Vector3d d=Vector3d(3,1,1);
-    Vector3d r=Vector3d(1,-3,2);
-    Vector3d s=Vector3d(2,2,15);
-    Vector3d t=Vector3d(-4,1,-5);
-//    //    Sphere test=Sphere(a,b);
-        Sphere test2=Sphere(r,s,t);
-//        Sphere test3=Sphere(a,b,c,d);
 
 }
 
@@ -386,8 +341,8 @@ void CGView::keyPressEvent( QKeyEvent * event)
     case Qt::Key_X     : if (event->modifiers() & Qt::ShiftModifier) point[picked][0] -= 0.05; else point[picked][0] += 0.05; break;
     case Qt::Key_Y     : if (event->modifiers() & Qt::ShiftModifier) point[picked][1] -= 0.05; else point[picked][1] += 0.05; break;
     case Qt::Key_Z     : if (event->modifiers() & Qt::ShiftModifier) point[picked][2] -= 0.05; else point[picked][2] += 0.05; break;
-    case Qt::Key_Plus  : std::cout << "kthPoint= "  << kthPoint << std::endl; kthPoint>3?kthPoint=0:kthPoint++ ; break;
-    case Qt::Key_Minus : std::cout << "kthPoint= "  << kthPoint << std::endl; kthPoint=0?kthPoint=3:kthPoint-- ; break;
+    case Qt::Key_Plus  : kthPoint>3?kthPoint=0:kthPoint++ ; break;
+    case Qt::Key_Minus : kthPoint==0?kthPoint=4:kthPoint-- ; break;
     }
 
     if (changed) {SES = Sphere::com(point);}
