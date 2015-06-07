@@ -193,7 +193,7 @@ bool CGView::surfaceTriangle(std::vector<Vector3d> &Q, const Vector3d &p, const 
 }
 
 bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
-                             const Vector3d &c){
+                          const Vector3d &c){
     if(((p-a)*(b-a)<=0) && ((p-a)*(c-a)<=0)){
         Q.push_back(a);
         return true;
@@ -204,11 +204,26 @@ bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vec
 bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                           const Vector3d &c, const Vector3d &d){
 
-        if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
-            Q.push_back(a);
-            return true;
-        }
+    if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
+        Q.push_back(a);
+        return true;
+    }
     return false;
+}
+
+Vector3d CGView::com(const Vector3d &a, const Vector3d &b,
+             const Vector3d &c){
+    Vector3d com;
+    std::vector<Vector3d> Q;
+    Q.push_back(a);
+    Q.push_back(b);
+    Q.push_back(c);
+    for(int i=0; i<3; i++){
+        com[0]+=Q[i][0];
+        com[1]+=Q[i][1];
+        com[2]+=Q[i][2];
+    }
+    return com=com/3;
 }
 
 
@@ -217,10 +232,7 @@ bool CGView::simplexSolver(const Vector3d &p,
                            std::vector<Vector3d> &Q,
                            Vector3d &dir, Vector3d &color){
 
-    int simplexSize=0;
-
     if(Q.size() == 1){
-        simplexSize=1;
         Vector3d a = Q.at(0);
         Q.clear();
         Q.push_back(a);
@@ -229,7 +241,6 @@ bool CGView::simplexSolver(const Vector3d &p,
     }
 
     if(Q.size() == 2){
-        simplexSize=2;
         Vector3d a = Q.at(0);
         Vector3d b = Q.at(1);
         Q.clear();
@@ -251,7 +262,6 @@ bool CGView::simplexSolver(const Vector3d &p,
     }
 
     if(Q.size() == 3){
-        simplexSize=3;
         Vector3d a = Q.at(0);
         Vector3d b = Q.at(1);
         Vector3d c = Q.at(2);
@@ -264,31 +274,17 @@ bool CGView::simplexSolver(const Vector3d &p,
             color=Vector3d(1.0,0.9,0.0);
             return false;
         }
-//        if(((p-a)*(b-a)<=0) && ((p-a)*(c-a)<=0)){
-//            Q.push_back(a);
-//            color=Vector3d(1.0,0.9,0.0);
-//            return false;
-//        }
-                if(voronoiPoint(Q, p, b, a, c)){
-                    color=Vector3d(0.0,1.0,0.25);
-                    return false;
-                }
-//        if(((p-b)*(a-b)<=0)&&((p-b)*(c-b)<=0)){
-//            Q.push_back(b);
-//            color=Vector3d(0.0,1.0,0.25);
-//            return false;
-//        }
-                if(voronoiPoint(Q, p, c, a, b)){
-                    color=Vector3d(0.2,0.0,1.0);
-                    return false;
-                }
-//        if(((p-c)*(a-c)<=0)&&((p-c)*(b-c)<=0)){
-//            Q.push_back(c);
-//            color=Vector3d(0.2,0.0,1.0);
-//            return false;
-//        }
+        if(voronoiPoint(Q, p, b, a, c)){
+            color=Vector3d(0.0,1.0,0.25);
+            return false;
+        }
+        if(voronoiPoint(Q, p, c, a, b)){
+            color=Vector3d(0.2,0.0,1.0);
+            return false;
+        }
 
         //Test if p in V_ab, V_ca, V_cb
+
         Vector3d n1=(b-a)%(c-a);
         Vector3d h1=(b-a)%n1;
         if((p-a)*h1>=0){
@@ -324,7 +320,6 @@ bool CGView::simplexSolver(const Vector3d &p,
     }
 
     if(Q.size() == 4){
-        simplexSize=4;
         Vector3d a = Q.at(0);
         Vector3d b = Q.at(1);
         Vector3d c = Q.at(2);
@@ -353,10 +348,11 @@ bool CGView::simplexSolver(const Vector3d &p,
 
 
         //Test if p in V_ab, V_bc, V_cd, V_da
-        Vector3d n_abc=(b-a)%(c-a);
-        Vector3d n_bad=(d-a)%(b-a);
-        Vector3d n_bdc=(d-b)%(c-b);
-        Vector3d n_dac=(a-d)%(c-d);
+
+                Vector3d n_abc=(b-a)%(c-a);
+                Vector3d n_bad=(d-a)%(b-a);
+                Vector3d n_bdc=(d-b)%(c-b);
+                Vector3d n_dac=(a-d)%(c-d);
 
         Vector3d h1a=(a-b)%n_abc;
         Vector3d h1b=(b-a)%n_bad;
@@ -527,25 +523,53 @@ void CGView::paintGL() {
         glPopMatrix();
     }
 
-    //Male Dreiecksnormale
-    Vector3d com, normal;
-    if(simplex.size()==3){
-        for(int i=0; i<3; i++){
-            com[0]+=simplex[i][0];
-            com[1]+=simplex[i][1];
-            com[2]+=simplex[i][2];
-        }
-        com=com/3;
+    //Berechne Dreiecksnormalen
 
-        Vector3d n=(simplex[1]-simplex[0])%(simplex[2]-simplex[0])*2;
-        normal=com+n;
+    Vector3d n_abc, n_bad, n_bdc, n_dac;
+
+    if(simplex.size()==3){
+        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+    }
+
+    if(simplex.size()==4){
+        //        Vector3d n_abc=(b-a)%(c-a);
+        //        Vector3d n_bad=(d-a)%(b-a);
+        //        Vector3d n_bdc=(d-b)%(c-b);
+        //        Vector3d n_dac=(a-d)%(c-d);
+        //                a=0
+        //                b=1
+        //                c=2
+        //                d=3
+
+        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+        n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
+        n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
+        n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
+    }
+
+
+
+    //Male Dreiecksnormalen
+    Vector3d coM, normal;
+    if(simplex.size()==3){
+//        for(int i=0; i<3; i++){
+//            com[0]+=simplex[i][0];
+//            com[1]+=simplex[i][1];
+//            com[2]+=simplex[i][2];
+//        }
+//        com=com/3;
+        coM=com(simplex[0],simplex[1],simplex[2]);
+
+        normal=coM+n_abc;
         glColor3d(1,0,0);
         glBegin(GL_LINES);
-        glVertex3dv(com.ptr());
+        glVertex3dv(coM.ptr());
         glVertex3dv(normal.ptr());
         glEnd();
     }
     //Ende Dreiecksnormale
+
+
 
     glColor3d(1,0,0);
     glBegin(GL_LINES);

@@ -119,6 +119,8 @@ protected:
                                  const Vector3d &c, const Vector3d &d);
     bool voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                                  const Vector3d &c);
+    Vector3d com(const Vector3d &a, const Vector3d &b,
+                 const Vector3d &c);
 
     void randomSimplex();
     void correctSimplexOrientation(std::vector<Vector3d> & simplex);
