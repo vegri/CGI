@@ -123,6 +123,7 @@ protected:
                       const Vector3d &c);
     Vector3d com(const Vector3d &a, const Vector3d &b,
                  const Vector3d &c);
+    Vector3d support(const std::vector<Vector3d> &p, const Vector3d &d);
 
     void randomSimplex();
     void correctSimplexOrientation(std::vector<Vector3d> & simplex);

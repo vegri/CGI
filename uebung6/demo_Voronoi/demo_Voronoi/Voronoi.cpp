@@ -245,6 +245,17 @@ Vector3d CGView::com(const Vector3d &a, const Vector3d &b,
     return com=com/3;
 }
 
+Vector3d CGView::support(const std::vector<Vector3d> &p, const Vector3d &d){
+    Vector3d max;
+    float pd=0;
+    for(unsigned int i=0; i<p.size(); i++){
+        if(p[i]*d>pd){
+            max=p[i];
+        }
+    }
+    return max;
+}
+
 
 // find feature of Q closest to p and direction of feature closest to p
 bool CGView::simplexSolver(const Vector3d &p,
@@ -258,6 +269,10 @@ bool CGView::simplexSolver(const Vector3d &p,
         // ADD YOUR CODE HERE
         return false;
     }
+
+    /// %%%%%%%%%%%%%%%%%%%%%%%%
+    /// %%%%%%%%%%  Q=2  %%%%%%%
+    /// %%%%%%%%%%%%%%%%%%%%%%%%
 
     if(Q.size() == 2){
         Vector3d a = Q.at(0);
@@ -282,6 +297,10 @@ bool CGView::simplexSolver(const Vector3d &p,
         color=Vector3d(0.2,0.5,1.0);
         return false;
     }
+
+    /// %%%%%%%%%%%%%%%%%%%%%%%%
+    /// %%%%%%%%%%  Q=3  %%%%%%%
+    /// %%%%%%%%%%%%%%%%%%%%%%%%
 
     if(Q.size() == 3){
         Vector3d a = Q.at(0);
@@ -327,6 +346,10 @@ bool CGView::simplexSolver(const Vector3d &p,
 
         return false;
     }
+
+    /// %%%%%%%%%%%%%%%%%%%%%%%%
+    /// %%%%%%%%%%  Q=4  %%%%%%%
+    /// %%%%%%%%%%%%%%%%%%%%%%%%
 
     if(Q.size() == 4){
         Vector3d a = Q.at(0);
@@ -413,7 +436,6 @@ bool CGView::simplexSolver(const Vector3d &p,
         color=Vector3d(0.2,0.5,1.0);
         return false;
     }
-    //color=Vector3d(0.2,0.5,1.0);
     return false;
 }
 
@@ -507,7 +529,7 @@ void CGView::paintGL() {
         glVertex3dv(normal4.ptr());
         glEnd();
     }
-    //Ende Dreiecksnormale
+    //end triangular normals
 
     glColor3d(1,0,0);
     glBegin(GL_LINES);
