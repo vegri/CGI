@@ -221,6 +221,15 @@ bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vect
     return false;
 }
 
+bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b){
+    Vector3d h=(b-a)%n_abc;
+    if((p-a)*h>=0){
+        Q.resize(2);
+        return true;
+    }
+    return false;
+}
+
 Vector3d CGView::com(const Vector3d &a, const Vector3d &b,
                      const Vector3d &c){
     Vector3d com;
@@ -297,26 +306,41 @@ bool CGView::simplexSolver(const Vector3d &p,
 
         //Test if p is in V_ab, V_ca, V_cb
 
-        Vector3d h1=(b-a)%n_abc;
-        if((p-a)*h1>=0){
-            Q.resize(2);
+        if(voronoiEdge(Q, p, a, b)){
             color=Vector3d(1.0,0.9,0.0);
             return false;
         }
 
-        Vector3d h2=(c-b)%n_abc;
-        if((p-b)*h2>=0){
-            Q.resize(2);
+//        Vector3d h1=(b-a)%n_abc;
+//        if((p-a)*h1>=0){
+//            Q.resize(2);
+//            color=Vector3d(1.0,0.9,0.0);
+//            return false;
+//        }
+
+        if(voronoiEdge(Q, p, b, c)){
             color=Vector3d(0.0,1.0,0.25);
             return false;
         }
 
-        Vector3d h3=(a-c)%n_abc;
-        if((p-c)*h3>=0){
-            Q.resize(2);
+//        Vector3d h2=(c-b)%n_abc;
+//        if((p-b)*h2>=0){
+//            Q.resize(2);
+//            color=Vector3d(0.0,1.0,0.25);
+//            return false;
+//        }
+
+        if(voronoiEdge(Q, p, c, a)){
             color=Vector3d(0.2,0.0,1.0);
             return false;
         }
+
+//        Vector3d h3=(a-c)%n_abc;
+//        if((p-c)*h3>=0){
+//            Q.resize(2);
+//            color=Vector3d(0.2,0.0,1.0);
+//            return false;
+//        }
 
         //else: p in V_abc
         Q.resize(3);
@@ -331,7 +355,6 @@ bool CGView::simplexSolver(const Vector3d &p,
         Vector3d c = Q.at(2);
         Vector3d d = Q.at(3);
         Q.clear();
-
 
         //Test if p in V_a, V_b, V_c, V_d
 
@@ -352,61 +375,27 @@ bool CGView::simplexSolver(const Vector3d &p,
             return false;
         }
 
-
         //Test if p in V_ab, V_bc, V_cd, V_da
-
 
         if(voronoiEdge(Q, p, a, b, n_abc, n_bad)){
             color=Vector3d(1.0,0.9,0.0);
             return false;
         }
 
-//        Vector3d h1a=(a-b)%n_abc;
-//        Vector3d h1b=(b-a)%n_bad;
-//        if(((p-a)*(b-a)>0) && ((p-b)*(a-b)>0) && (((p-a)*h1a)<=0) && ((p-b)*h1b<=0)){
-//            Q.resize(2);
-//            color=Vector3d(1.0,0.9,0.0);
-//            return false;
-//        }
-
         if(voronoiEdge(Q, p, b, c, n_abc, n_bdc)){
             color=Vector3d(0.0,1.0,0.25);
             return false;
         }
-
-//        Vector3d h2a=(b-c)%n_abc;
-//        Vector3d h2b=(c-b)%n_bdc;
-//        if(((p-b)*(c-b)>0) && ((p-c)*(b-c)>0) && (((p-b)*h2a)<=0) && ((p-c)*h2b<=0)){
-//            Q.resize(2);
-//            color=Vector3d(0.0,1.0,0.25);
-//            return false;
-//        }
 
         if(voronoiEdge(Q, p, b, d, n_bdc, n_bad)){
             color=Vector3d(0.2,0.0,1.0);
             return false;
         }
 
-//        Vector3d h3a=(b-d)%n_bdc;
-//        Vector3d h3b=(d-b)%n_bad;
-//        if(((p-b)*(d-b)>0) && ((p-d)*(b-d)>0) && (((p-b)*h3a)<=0) && ((p-d)*h3b<=0)){
-//            Q.resize(2);
-//            color=Vector3d(0.2,0.0,1.0);
-//            return false;
-//        }
-
         if(voronoiEdge(Q, p, a, d, n_bad, n_dac)){
             color=Vector3d(1.0,0.0,0.15);
             return false;
         }
-
-//        Vector3d h4a=(a-d)%n_bad;
-//        Vector3d h4b=(d-a)%n_dac;
-//        if(((p-a)*(d-a)>0) && ((p-d)*(a-d)>0) && (((p-a)*h4a)<=0) && ((p-d)*h4b<=0)){
-//            Q.resize(2);
-//            color=Vector3d(1.0,0.0,0.15);
-//            return false;
-//        }
 
         //Test if p is in V_abc, V_bdc, V_adb, V_dac
 
