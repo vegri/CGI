@@ -17,8 +17,6 @@
 
 #include "Voronoi.h"
 
-const int numpoints = 8000;
-static std::vector<Vector3d> point;
 
 CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
     : QMainWindow (parent, flags) {
@@ -65,15 +63,6 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent),
     show_circle=false;
     bbox_on = true;
 
-
-    //Zufallsgenerator fuer Punkte
-    //    point.resize(numpoints);
-    //    for(int i=0;i<numpoints;i++) {
-    //        for(int j=0;j<3;j++)
-    //            point[i][j] = 2.0*(double(rand())/RAND_MAX-0.5);
-    //    }
-
-
     picked = 0;
 
     /// Um Keyboard-Events durchzulassen
@@ -93,10 +82,6 @@ void CGView::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_COLOR_MATERIAL);
-
-    randomSimplex();
-    VoronoiCellSize = 0;
-
 }
 
 void CGMainWindow::loadPolyhedron() {
@@ -136,8 +121,6 @@ void CGMainWindow::loadPolyhedron() {
         }
     }
 
-    std::cout << "erster eintrag von P1    : " << ogl->P1[0] <<", " << ogl->P1[1] << ", " << ogl->P1[2] << std::endl;
-
     file.close();
 
     ogl->updateGL();
@@ -145,17 +128,17 @@ void CGMainWindow::loadPolyhedron() {
 }
 
 
-void CGView::randomSimplex(){
-    simplex.clear();
-    int size = rand()%4;
-    for(int i = 0; i <= size; i++){
-        double x = (double(rand())/RAND_MAX-0.5);
-        double y = (double(rand())/RAND_MAX-0.5);
-        double z = (double(rand())/RAND_MAX-0.5);
-        simplex.push_back(Vector3d(x,y,z));
-    }
-    correctSimplexOrientation(simplex);
-}
+//void CGView::randomSimplex(){
+//    simplex.clear();
+//    int size = rand()%4;
+//    for(int i = 0; i <= size; i++){
+//        double x = (double(rand())/RAND_MAX-0.5);
+//        double y = (double(rand())/RAND_MAX-0.5);
+//        double z = (double(rand())/RAND_MAX-0.5);
+//        simplex.push_back(Vector3d(x,y,z));
+//    }
+//    correctSimplexOrientation(simplex);
+//}
 
 
 void CGView::correctSimplexOrientation(std::vector<Vector3d> & simplex){
@@ -242,7 +225,6 @@ bool CGView::voronoiSurface(std::vector<Vector3d> &Q, const Vector3d &p, const V
 bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                           const Vector3d &c){
     if(((p-a)*(b-a)<=0) && ((p-a)*(c-a)<=0)){
-        //Q.resize(1);
         Q.push_back(a);
         return true;
     }
@@ -253,7 +235,6 @@ bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vec
                           const Vector3d &c, const Vector3d &d){
 
     if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
-        //Q.resize(1);
         Q.push_back(a);
         return true;
     }
@@ -514,7 +495,6 @@ bool CGView::GJK(){
     Vector3d dir=P1[0];
     Vector3d v=support(dir);
 
-    std::vector<Vector3d> Q;
     Q.push_back(v);
     dir=v*(-1);
     Vector3d p=Vector3d(0.0,0.0,0.0);
@@ -592,20 +572,6 @@ void CGView::paintGL() {
         }
     }
 
-
-    //Calculate triangular normals
-
-    //    if(simplex.size()==3){
-    //        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
-    //    }
-
-    //    if(simplex.size()==4){
-    //        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
-    //        n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
-    //        n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
-    //        n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
-    //    }
-
     //Draw triangular normals
 
     //    if(simplex.size()==3){
@@ -640,17 +606,17 @@ void CGView::paintGL() {
     //    }
     //end triangular normals
 
-    //    glColor3d(1,0,0);
-    //    glBegin(GL_LINES);
-    //    for(unsigned int i = 0; i < simplex.size()-1; i++){
-    //        for(unsigned int j = i+1; j < simplex.size(); j++){
-    //            Vector3d a(simplex[i][0], simplex[i][1], simplex[i][2]);
-    //            Vector3d b(simplex[j][0], simplex[j][1], simplex[j][2]);
-    //            glVertex3dv(a.ptr());
-    //            glVertex3dv(b.ptr());
-    //        }
-    //    }
-    //    glEnd();
+//        glColor3d(1,0,0);
+//        glBegin(GL_LINES);
+//        for(unsigned int i = 0; i < Q.size(); i++){
+//            for(unsigned int j = i+1; j < Q.size(); j++){
+//                Vector3d a(Q[i][0], Q[i][1], Q[i][2]);
+//                Vector3d b(Q[j][0], Q[j][1], Q[j][2]);
+//                glVertex3dv(a.ptr());
+//                glVertex3dv(b.ptr());
+//            }
+//        }
+//        glEnd();
 }
 
 void CGView::resizeGL(int width, int height) {

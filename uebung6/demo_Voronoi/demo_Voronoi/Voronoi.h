@@ -103,9 +103,9 @@ protected:
     GLUquadric *quad;
     Quat4d q_now;
 
-    std::vector<Vector3d> points;
-    std::vector<Vector3d> simplex;
+    std::vector<Vector3d> Q;
     std::vector<Vector3d> feature;
+
     Vector3d direction;
     Vector3d sphere_center;
 
