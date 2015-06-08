@@ -118,7 +118,7 @@ protected:
 
     bool simplexSolver(const Vector3d &p,
                        std::vector<Vector3d> &Q,
-                       Vector3d &dir, Vector3d &color);
+                       Vector3d &dir);
     bool voronoiSurface(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                         const Vector3d &c, const Vector3d &normal);
     bool voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b, const Vector3d &normal1, const Vector3d &normal2);
@@ -127,9 +127,11 @@ protected:
                       const Vector3d &c, const Vector3d &d);
     bool voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                       const Vector3d &c);
-    Vector3d com(const Vector3d &a, const Vector3d &b,
+    Vector3d comTriangle(const Vector3d &a, const Vector3d &b,
                  const Vector3d &c);
     Vector3d support(const Vector3d &d);
+    void triangleNormal(const std::vector<Vector3d> &simplex);
+    bool GJK();
 
     void randomSimplex();
     void correctSimplexOrientation(std::vector<Vector3d> & simplex);

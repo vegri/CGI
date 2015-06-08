@@ -67,11 +67,11 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent),
 
 
     //Zufallsgenerator fuer Punkte
-    point.resize(numpoints);
-    for(int i=0;i<numpoints;i++) {
-        for(int j=0;j<3;j++)
-            point[i][j] = 2.0*(double(rand())/RAND_MAX-0.5);
-    }
+    //    point.resize(numpoints);
+    //    for(int i=0;i<numpoints;i++) {
+    //        for(int j=0;j<3;j++)
+    //            point[i][j] = 2.0*(double(rand())/RAND_MAX-0.5);
+    //    }
 
 
     picked = 0;
@@ -128,13 +128,15 @@ void CGMainWindow::loadPolyhedron() {
 
     }
 
-    centerOfMass=sumAllVectors/ogl->vn;
-    //translate center of mass of model to origin
-    for(int i=0;i<ogl->vn;i++) {
-        for(int j=0; j<3; j++){
-            ogl->P1[i][j]= ogl->P1[i][j]-centerOfMass[j];
-        }
-    }
+//    centerOfMass=sumAllVectors/ogl->vn;
+//    //translate center of mass of model to origin
+//    for(int i=0;i<ogl->vn;i++) {
+//        for(int j=0; j<3; j++){
+//            ogl->P1[i][j]= ogl->P1[i][j]-centerOfMass[j];
+//        }
+//    }
+
+    std::cout << "erster eintrag von P1    : " << ogl->P1[0] <<", " << ogl->P1[1] << ", " << ogl->P1[2] << std::endl;
 
     file.close();
 
@@ -274,6 +276,7 @@ bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vect
 
 bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b){
     Vector3d h=(b-a)%n_abc;
+    std::cout << "normale n_abc" << n_abc<< std::endl;
     if((p-a)*h>=0){
         //Q.resize(2);
         Q.push_back(a);
@@ -283,29 +286,44 @@ bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vect
     return false;
 }
 
-Vector3d CGView::com(const Vector3d &a, const Vector3d &b,
-                     const Vector3d &c){
+Vector3d CGView::comTriangle(const Vector3d &a, const Vector3d &b,
+                             const Vector3d &c){
     Vector3d com;
     std::vector<Vector3d> Q;
     Q.push_back(a);
     Q.push_back(b);
     Q.push_back(c);
     for(int i=0; i<3; i++){
-        com[0]+=Q[i][0];
-        com[1]+=Q[i][1];
-        com[2]+=Q[i][2];
+        //        com[0]+=Q[i][0];
+        //        com[1]+=Q[i][1];
+        //        com[2]+=Q[i][2];
+        com+=Q[i];
     }
     return com=com/3;
 }
 
+void CGView::triangleNormal(const std::vector<Vector3d> &simplex){
+
+    if(simplex.size()==3){
+        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+    }
+
+    if(simplex.size()==4){
+        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+        n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
+        n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
+        n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
+    }
+}
+
 Vector3d CGView::support(const Vector3d &d){
     Vector3d max;
-    float pd=0;
-    for(unsigned int i=0; i<point.size(); i++){
-        float pd_cur=point[i]*d;
+    float pd=-std::numeric_limits<float>::max();
+    for(unsigned int i=0; i<P1.size(); i++){
+        float pd_cur=P1[i]*d;
         if(pd_cur>pd){
             pd=pd_cur;
-            max=point[i];
+            max=P1[i];
         }
     }
     return max;
@@ -315,14 +333,14 @@ Vector3d CGView::support(const Vector3d &d){
 // find feature of Q closest to p and direction of feature closest to p
 bool CGView::simplexSolver(const Vector3d &p,
                            std::vector<Vector3d> &Q,
-                           Vector3d &dir, Vector3d &color){
+                           Vector3d &dir){
 
     if(Q.size() == 1){
         //        Vector3d a = Q.at(0);
         //        Q.clear();
         //        Q.push_back(a);
         // ADD YOUR CODE HERE
-        return true;
+        return false;
     }
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
@@ -337,25 +355,27 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_a, V_b
 
         if((p-a)*(b-a)<=0){
-            Q.resize(1);
-            color=Vector3d(1.0,0.9,0.0);
+
+            Q.push_back(a);
+            std::cout << "in Q2, Va" << std::endl;
             dir=p-a;
-            return true;
+            return false;
         }
         if((p-b)*(a-b)<=0){
-            Q.resize(1);
-            color=Vector3d(0.0,1.0,0.25);
+
+            Q.push_back(b);
+            std::cout << "in Q2, Vb" << std::endl;
             dir=p-b;
-            return true;
+            return false;
         }
 
         //else: p is in V_ab
-        //Q.resize(2);
+
         Q.push_back(a);
         Q.push_back(b);
         dir=((b-a)%(p-a))%(b-a);
-        color=Vector3d(0.2,0.5,1.0);
-        return true;
+        std::cout << "in Q2, Vab" << std::endl;
+        return false;
     }
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
@@ -371,49 +391,51 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_a, V_b, V_c
 
         if(voronoiPoint(Q, p, a, b, c)){
-            color=Vector3d(1.0,0.9,0.0);
+            std::cout << "in Q3, Va" << std::endl;
             dir=p-a;
-            return true;
+            return false;
         }
         if(voronoiPoint(Q, p, b, a, c)){
-            color=Vector3d(0.0,1.0,0.25);
+            std::cout << "in Q3, Vb" << std::endl;
             dir=p-b;
-            return true;
+            return false;
         }
         if(voronoiPoint(Q, p, c, a, b)){
-            color=Vector3d(0.2,0.5,1.0);
+            std::cout << "in Q3, Vc" << std::endl;
             dir=p-c;
-            return true;
+            return false;
         }
 
         //Test if p is in V_ab, V_ca, V_cb
 
-        if(voronoiEdge(Q, p, a, b)){
-            color=Vector3d(1.0,0.9,0.0);
-            dir=((b-a)%(p-a))%(b-a);
-            return true;
-        }
+
 
         if(voronoiEdge(Q, p, b, c)){
-            color=Vector3d(0.0,1.0,0.25);
+            std::cout << "in Q3, Vbc" << std::endl;
             dir=((c-b)%(p-b))%(c-b);
-            return true;
+            return false;
+        }
+
+        if(voronoiEdge(Q, p, a, b)){
+            std::cout << "in Q3, Vab" << std::endl;
+            dir=((b-a)%(p-a))%(b-a);
+            return false;
         }
 
         if(voronoiEdge(Q, p, c, a)){
-            color=Vector3d(0.2,0.5,1.0);
+            std::cout << "in Q3, Vac" << std::endl;
             dir=((a-c)%(p-c))%(a-c);
-            return true;
+            return false;
         }
 
         //else: p is in V_abc
-        //Q.resize(3);
+
         Q.push_back(a);
         Q.push_back(b);
         Q.push_back(c);
-        color=Vector3d(0.0,1.0,0.25);
+        std::cout << "in Q3, Vabc" << std::endl;
         dir=n_abc; //Orientierung prüfen?
-        return true;
+        return false;
     }
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
@@ -430,117 +452,129 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_a, V_b, V_c, V_d
 
         if(voronoiPoint(Q, p, a, b, c, d)){
-            color=Vector3d(1.0,0.9,0.0);
+            std::cout << "in Q4, Va" << std::endl;
             dir=p-a;
-            return true;
+            return false;
         }
         if(voronoiPoint(Q, p, b, a, c, d)){
-            color=Vector3d(0.0,1.0,0.25);
+            std::cout << "in Q4, Vb" << std::endl;
             dir=p-b;
-            return true;
+            return false;
         }
         if(voronoiPoint(Q, p, c, b, a, d)){
-            color=Vector3d(0.2,0.5,1.0);
+            std::cout << "in Q4, Vc" << std::endl;
             dir=p-c;
-            return true;
+            return false;
         }
         if(voronoiPoint(Q, p, d, b, c, a)){
-            color=Vector3d(1.0,0.0,0.15);
+            std::cout << "in Q4, Vd" << std::endl;
             dir=p-d;
-            return true;
+            return false;
         }
 
         //Test if p is in V_ab, V_bc, V_cd, V_da, V_ca, V_bd
 
         if(voronoiEdge(Q, p, a, b, n_abc, n_bad)){
-            color=Vector3d(1.0,0.9,0.0);
+            std::cout << "in Q4, Vab" << std::endl;
             dir=((b-a)%(p-a))%(b-a);
-            return true;
+            return false;
         }
 
         if(voronoiEdge(Q, p, b, c, n_abc, n_bdc)){
-            color=Vector3d(0.0,1.0,0.25);
+            std::cout << "in Q4, Vbc" << std::endl;
             dir=((c-b)%(p-b))%(c-b);
-            return true;
+            return false;
         }
 
         if(voronoiEdge(Q, p, b, d, n_bdc, n_bad)){
-            color=Vector3d(0.2,0.5,1.0);
+            std::cout << "in Q4, Vbd" << std::endl;
             dir=((d-b)%(p-b))%(d-b);
-            return true;
+            return false;
         }
 
         if(voronoiEdge(Q, p, a, d, n_bad, n_dac)){
-            color=Vector3d(1.0,0.0,0.15);
+            std::cout << "in Q4, Vad" << std::endl;
             dir=((d-a)%(p-a))%(d-a);
-            return true;
+            return false;
         }
 
         if(voronoiEdge(Q, p, a, c, n_dac, n_abc)){
-            color=Vector3d(0.9,0.0,0.9);
+            std::cout << "in Q4, Vac" << std::endl;
             dir=((c-a)%(p-a))%(c-a);
-            return true;
+            return false;
         }
 
         if(voronoiEdge(Q, p, c, d,n_dac, n_bdc)){
-            color=Vector3d(0.0,0.0,0.0);
+            std::cout << "in Q4, Vcd" << std::endl;
             dir=((d-c)%(p-c))%(d-c);
-            return true;
+            return false;
         }
 
         //Test if p is in V_abc, V_bdc, V_adb, V_dac
 
         if(voronoiSurface(Q, p, a, b, c, n_abc)){
-            color=Vector3d(1.0,0.9,0.0);
+            std::cout << "in Q4, Vabc" << std::endl;
             dir=n_abc; //Orientierung prüfen?
-            return true;
+            return false;
         }
 
         if(voronoiSurface(Q, p, b, d, c, n_bdc)){
-            color=Vector3d(0.0,1.0,0.25);
+            std::cout << "in Q4, Vbdc" << std::endl;
             dir=n_bdc; //Orientierung prüfen?
-            return true;
+            return false;
         }
 
         if(voronoiSurface(Q, p, a, d, b, n_bad)){
-            color=Vector3d(0.2,0.5,1.0);
+            std::cout << "in Q4, Vadb" << std::endl;
             dir=n_bad; //Orientierung prüfen?
-            return true;
+            return false;
         }
 
         if(voronoiSurface(Q, p, d, a, c, n_dac)){
-            color=Vector3d(1.0,0.0,0.2);
+            std::cout << "in Q4, Vdac" << std::endl;
             dir=n_dac; //Orientierung prüfen?
-            return true;
+            return false;
         }
 
         //else: p is in V_abcd
-        //Q.resize(4);
+
         Q.push_back(a); //Orientierung?
         Q.push_back(b);
         Q.push_back(c);
         Q.push_back(d);
-        color=Vector3d(0.2,0.5,1.0);
-        //dir=??
+        std::cout << "in Q4, Vabcd" << std::endl;
         return true;
     }
     return false;
 }
 
-void CGView::GJK(){
-    dir=P1[0];
+bool CGView::GJK(){
+    Vector3d dir=P1[0];
+    //    Vector3d dir=Vector3d(1.0,1.0,1.0);
     Vector3d v=support(dir);
-    std::vector<Vector3d> Q={v};
+    //std::cout << "erster eintrag von v    : " << v[0] <<", " << v[1] << ", " << v[2] << std::endl;
+
+    std::vector<Vector3d> Q;
+    Q.push_back(v);
     dir=v*(-1);
+    std::cout << "im gjk" << std::endl;
+    Vector3d p=Vector3d(0.0,0.0,0.0);
+    int counter=0;
 
     while(true){
+        counter++;
         v=support(dir);
+        //std::cout << counter << ". eintrag von v    : " << v[0] <<", " << v[1] << ", " << v[2] << std::endl;
         Q.push_back(v);
+        correctSimplexOrientation(Q);
+        triangleNormal(Q);
         if(v*dir<0){
-            //no collision
+            std::cout << "schneiden sich nicht" << std::endl;
+            return false;
         }
-        if(simplexSolver(Vector3d(0.0,0.0,0.0),Q,dir,Vector3d(0.0,0.0,0.0))){
-            //collision
+        if(simplexSolver(p,Q,dir)){
+            std::cout << "schneiden sich!!" << std::endl;
+            return true;
         }
     }
 }
@@ -562,113 +596,103 @@ void CGView::paintGL() {
     if (bbox_on) drawBoundingBox();
 
     GLUquadricObj *quadric;
-    glColor3d(1,0,0);
+    glColor3d(1,0,1);
     quadric = gluNewQuadric();
     gluSphere( quadric , 0.01 , 10 , 10);
     glPushMatrix();
     glColor3d(0,1,0);
 
-    //Draw random points
-    glDisable (GL_CULL_FACE);
-    for(unsigned int i=0;i<point.size();i++) {
-        if (i == picked) glColor3d(1.0,0.0,0.0);
-        else glColor3d(1.0,1.0,0.0);
-        glPushMatrix();
-        glTranslated(point[i][0],point[i][1],point[i][2]);
-
-        feature = simplex;
-        Vector3d dir, color;
-        simplexSolver(Vector3d(point[i][0], point[i][1], point[i][2]), feature, dir, color);
-        int num = feature.size();
-
-        gluQuadricDrawStyle(quadric, GLU_FILL);
-
-        if(num == VoronoiCellSize){
-            glColor3d(color[0],color[1],color[2]);
-            //gluSphere( quadric , .01 , 10 , 10);
-        }
-        glPopMatrix();
-    }
 
     //Draw off-model
     glDisable (GL_CULL_FACE);
-    for(unsigned int i=0;i<P1.size();i++) {
-        glColor3d(1.0,1.0,0.0);
-        glPushMatrix();
-        glTranslated(P1[i][0],P1[i][1],P1[i][2]);
-        //glScaled(500.0,500.0,500.0);
+    if(!P1.empty()){
+        bool intersect=false; //
+        Vector3d color=Vector3d(0.0,1.0,0.0);
+        for(unsigned int i=0;i<P1.size();i++) {
 
-        //        feature = simplex;
-        //        Vector3d dir, color;
-        //        simplexSolver(Vector3d(point[i][0], point[i][1], point[i][2]), feature, dir, color);
-        //        int num = feature.size();
+            if(!intersect){
+                if(GJK()) {
+                    color=Vector3d(1.0,0.0,0.0);
+                    intersect=true; //so that GJK doesn't have to be calc. for every point
+                }
+            }
+            glColor3d(color[0], color[1], color[2]);
+            glPushMatrix();
+            glTranslated(P1[i][0],P1[i][1],P1[i][2]);
+            //glScaled(500.0,500.0,500.0);
 
-        gluQuadricDrawStyle(quadric, GLU_FILL);
+            //        feature = simplex;
+            //        Vector3d dir, color;
+            //        simplexSolver(Vector3d(point[i][0], point[i][1], point[i][2]), feature, dir, color);
+            //        int num = feature.size();
 
-        //glColor3d(color[0],color[1],color[2]);
-        gluSphere( quadric , .01 , 10 , 10);
-        glPopMatrix();
+            gluQuadricDrawStyle(quadric, GLU_FILL);
+
+            //glColor3d(color[0],color[1],color[2]);
+            gluSphere( quadric , .01 , 10 , 10);
+            glPopMatrix();
+        }
     }
 
 
     //Calculate triangular normals
 
-    if(simplex.size()==3){
-        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
-    }
+    //    if(simplex.size()==3){
+    //        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+    //    }
 
-    if(simplex.size()==4){
-        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
-        n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
-        n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
-        n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
-    }
+    //    if(simplex.size()==4){
+    //        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+    //        n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
+    //        n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
+    //        n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
+    //    }
 
     //Draw triangular normals
 
-    if(simplex.size()==3){
-        Vector3d coM=com(simplex[0],simplex[1],simplex[2]);
-        Vector3d normal=coM+n_abc;
-        glColor3d(1,0,0);
-        glBegin(GL_LINES);
-        glVertex3dv(coM.ptr());
-        glVertex3dv(normal.ptr());
-        glEnd();
-    }
-    if(simplex.size()==4){
-        Vector3d com1=com(simplex[0],simplex[1],simplex[2]);
-        Vector3d normal1=com1+n_abc;
-        Vector3d com2=com(simplex[0],simplex[1],simplex[3]);
-        Vector3d normal2=com2+n_bad;
-        Vector3d com3=com(simplex[0],simplex[3],simplex[2]);
-        Vector3d normal3=com3+n_dac;
-        Vector3d com4=com(simplex[3],simplex[1],simplex[2]);
-        Vector3d normal4=com4+n_bdc;
-        glColor3d(1,0,0);
-        glBegin(GL_LINES);
-        glVertex3dv(com1.ptr());
-        glVertex3dv(normal1.ptr());
-        glVertex3dv(com2.ptr());
-        glVertex3dv(normal2.ptr());
-        glVertex3dv(com3.ptr());
-        glVertex3dv(normal3.ptr());
-        glVertex3dv(com4.ptr());
-        glVertex3dv(normal4.ptr());
-        glEnd();
-    }
+    //    if(simplex.size()==3){
+    //        Vector3d coM=comTriangle(simplex[0],simplex[1],simplex[2]);
+    //        Vector3d normal=coM+n_abc;
+    //        glColor3d(1,0,0);
+    //        glBegin(GL_LINES);
+    //        glVertex3dv(coM.ptr());
+    //        glVertex3dv(normal.ptr());
+    //        glEnd();
+    //    }
+    //    if(simplex.size()==4){
+    //        Vector3d com1=comTriangle(simplex[0],simplex[1],simplex[2]);
+    //        Vector3d normal1=com1+n_abc;
+    //        Vector3d com2=comTriangle(simplex[0],simplex[1],simplex[3]);
+    //        Vector3d normal2=com2+n_bad;
+    //        Vector3d com3=comTriangle(simplex[0],simplex[3],simplex[2]);
+    //        Vector3d normal3=com3+n_dac;
+    //        Vector3d com4=comTriangle(simplex[3],simplex[1],simplex[2]);
+    //        Vector3d normal4=com4+n_bdc;
+    //        glColor3d(1,0,0);
+    //        glBegin(GL_LINES);
+    //        glVertex3dv(com1.ptr());
+    //        glVertex3dv(normal1.ptr());
+    //        glVertex3dv(com2.ptr());
+    //        glVertex3dv(normal2.ptr());
+    //        glVertex3dv(com3.ptr());
+    //        glVertex3dv(normal3.ptr());
+    //        glVertex3dv(com4.ptr());
+    //        glVertex3dv(normal4.ptr());
+    //        glEnd();
+    //    }
     //end triangular normals
 
-    glColor3d(1,0,0);
-    glBegin(GL_LINES);
-    for(unsigned int i = 0; i < simplex.size()-1; i++){
-        for(unsigned int j = i+1; j < simplex.size(); j++){
-            Vector3d a(simplex[i][0], simplex[i][1], simplex[i][2]);
-            Vector3d b(simplex[j][0], simplex[j][1], simplex[j][2]);
-            glVertex3dv(a.ptr());
-            glVertex3dv(b.ptr());
-        }
-    }
-    glEnd();
+    //    glColor3d(1,0,0);
+    //    glBegin(GL_LINES);
+    //    for(unsigned int i = 0; i < simplex.size()-1; i++){
+    //        for(unsigned int j = i+1; j < simplex.size(); j++){
+    //            Vector3d a(simplex[i][0], simplex[i][1], simplex[i][2]);
+    //            Vector3d b(simplex[j][0], simplex[j][1], simplex[j][2]);
+    //            glVertex3dv(a.ptr());
+    //            glVertex3dv(b.ptr());
+    //        }
+    //    }
+    //    glEnd();
 }
 
 void CGView::resizeGL(int width, int height) {

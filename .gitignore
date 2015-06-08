@@ -8,4 +8,4 @@ Makefile
 .DS_Store
 *pdf
 *.zip
-
+*64bit*
