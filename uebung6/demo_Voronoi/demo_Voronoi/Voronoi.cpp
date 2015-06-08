@@ -128,13 +128,13 @@ void CGMainWindow::loadPolyhedron() {
 
     }
 
-//    centerOfMass=sumAllVectors/ogl->vn;
-//    //translate center of mass of model to origin
-//    for(int i=0;i<ogl->vn;i++) {
-//        for(int j=0; j<3; j++){
-//            ogl->P1[i][j]= ogl->P1[i][j]-centerOfMass[j];
-//        }
-//    }
+    centerOfMass=sumAllVectors/ogl->vn;
+    //translate center of mass of model to origin
+    for(int i=0;i<ogl->vn;i++) {
+        for(int j=0; j<3; j++){
+            ogl->P1[i][j]= ogl->P1[i][j]-centerOfMass[j];
+        }
+    }
 
     std::cout << "erster eintrag von P1    : " << ogl->P1[0] <<", " << ogl->P1[1] << ", " << ogl->P1[2] << std::endl;
 
@@ -266,7 +266,6 @@ bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vect
     Vector3d h1=(a-b)%normal1;
     Vector3d h2=(b-a)%normal2;
     if(((p-a)*(b-a)>0) && ((p-b)*(a-b)>0) && (((p-a)*h1)<=0) && ((p-b)*h2<=0)){
-        //Q.resize(2);
         Q.push_back(a);
         Q.push_back(b);
         return true;
@@ -276,9 +275,8 @@ bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vect
 
 bool CGView::voronoiEdge(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b){
     Vector3d h=(b-a)%n_abc;
-    std::cout << "normale n_abc" << n_abc<< std::endl;
+
     if((p-a)*h>=0){
-        //Q.resize(2);
         Q.push_back(a);
         Q.push_back(b);
         return true;
@@ -294,9 +292,6 @@ Vector3d CGView::comTriangle(const Vector3d &a, const Vector3d &b,
     Q.push_back(b);
     Q.push_back(c);
     for(int i=0; i<3; i++){
-        //        com[0]+=Q[i][0];
-        //        com[1]+=Q[i][1];
-        //        com[2]+=Q[i][2];
         com+=Q[i];
     }
     return com=com/3;
@@ -335,13 +330,8 @@ bool CGView::simplexSolver(const Vector3d &p,
                            std::vector<Vector3d> &Q,
                            Vector3d &dir){
 
-    if(Q.size() == 1){
-        //        Vector3d a = Q.at(0);
-        //        Q.clear();
-        //        Q.push_back(a);
-        // ADD YOUR CODE HERE
-        return false;
-    }
+
+    // Q.size() == 1 not interesting, as simplex in GJK will always be at least 2
 
     /// %%%%%%%%%%%%%%%%%%%%%%%%
     /// %%%%%%%%%%  Q=2  %%%%%%%
@@ -355,16 +345,12 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_a, V_b
 
         if((p-a)*(b-a)<=0){
-
             Q.push_back(a);
-            std::cout << "in Q2, Va" << std::endl;
             dir=p-a;
             return false;
         }
         if((p-b)*(a-b)<=0){
-
             Q.push_back(b);
-            std::cout << "in Q2, Vb" << std::endl;
             dir=p-b;
             return false;
         }
@@ -374,7 +360,6 @@ bool CGView::simplexSolver(const Vector3d &p,
         Q.push_back(a);
         Q.push_back(b);
         dir=((b-a)%(p-a))%(b-a);
-        std::cout << "in Q2, Vab" << std::endl;
         return false;
     }
 
@@ -391,39 +376,31 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_a, V_b, V_c
 
         if(voronoiPoint(Q, p, a, b, c)){
-            std::cout << "in Q3, Va" << std::endl;
             dir=p-a;
             return false;
         }
         if(voronoiPoint(Q, p, b, a, c)){
-            std::cout << "in Q3, Vb" << std::endl;
             dir=p-b;
             return false;
         }
         if(voronoiPoint(Q, p, c, a, b)){
-            std::cout << "in Q3, Vc" << std::endl;
             dir=p-c;
             return false;
         }
 
         //Test if p is in V_ab, V_ca, V_cb
 
-
-
         if(voronoiEdge(Q, p, b, c)){
-            std::cout << "in Q3, Vbc" << std::endl;
             dir=((c-b)%(p-b))%(c-b);
             return false;
         }
 
         if(voronoiEdge(Q, p, a, b)){
-            std::cout << "in Q3, Vab" << std::endl;
             dir=((b-a)%(p-a))%(b-a);
             return false;
         }
 
         if(voronoiEdge(Q, p, c, a)){
-            std::cout << "in Q3, Vac" << std::endl;
             dir=((a-c)%(p-c))%(a-c);
             return false;
         }
@@ -433,8 +410,7 @@ bool CGView::simplexSolver(const Vector3d &p,
         Q.push_back(a);
         Q.push_back(b);
         Q.push_back(c);
-        std::cout << "in Q3, Vabc" << std::endl;
-        dir=n_abc; //Orientierung prüfen?
+        dir=n_abc;
         return false;
     }
 
@@ -452,22 +428,18 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_a, V_b, V_c, V_d
 
         if(voronoiPoint(Q, p, a, b, c, d)){
-            std::cout << "in Q4, Va" << std::endl;
             dir=p-a;
             return false;
         }
         if(voronoiPoint(Q, p, b, a, c, d)){
-            std::cout << "in Q4, Vb" << std::endl;
             dir=p-b;
             return false;
         }
         if(voronoiPoint(Q, p, c, b, a, d)){
-            std::cout << "in Q4, Vc" << std::endl;
             dir=p-c;
             return false;
         }
         if(voronoiPoint(Q, p, d, b, c, a)){
-            std::cout << "in Q4, Vd" << std::endl;
             dir=p-d;
             return false;
         }
@@ -475,37 +447,31 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_ab, V_bc, V_cd, V_da, V_ca, V_bd
 
         if(voronoiEdge(Q, p, a, b, n_abc, n_bad)){
-            std::cout << "in Q4, Vab" << std::endl;
             dir=((b-a)%(p-a))%(b-a);
             return false;
         }
 
         if(voronoiEdge(Q, p, b, c, n_abc, n_bdc)){
-            std::cout << "in Q4, Vbc" << std::endl;
             dir=((c-b)%(p-b))%(c-b);
             return false;
         }
 
         if(voronoiEdge(Q, p, b, d, n_bdc, n_bad)){
-            std::cout << "in Q4, Vbd" << std::endl;
             dir=((d-b)%(p-b))%(d-b);
             return false;
         }
 
         if(voronoiEdge(Q, p, a, d, n_bad, n_dac)){
-            std::cout << "in Q4, Vad" << std::endl;
             dir=((d-a)%(p-a))%(d-a);
             return false;
         }
 
         if(voronoiEdge(Q, p, a, c, n_dac, n_abc)){
-            std::cout << "in Q4, Vac" << std::endl;
             dir=((c-a)%(p-a))%(c-a);
             return false;
         }
 
         if(voronoiEdge(Q, p, c, d,n_dac, n_bdc)){
-            std::cout << "in Q4, Vcd" << std::endl;
             dir=((d-c)%(p-c))%(d-c);
             return false;
         }
@@ -513,68 +479,56 @@ bool CGView::simplexSolver(const Vector3d &p,
         //Test if p is in V_abc, V_bdc, V_adb, V_dac
 
         if(voronoiSurface(Q, p, a, b, c, n_abc)){
-            std::cout << "in Q4, Vabc" << std::endl;
-            dir=n_abc; //Orientierung prüfen?
+            dir=n_abc;
             return false;
         }
 
         if(voronoiSurface(Q, p, b, d, c, n_bdc)){
-            std::cout << "in Q4, Vbdc" << std::endl;
-            dir=n_bdc; //Orientierung prüfen?
+            dir=n_bdc;
             return false;
         }
 
         if(voronoiSurface(Q, p, a, d, b, n_bad)){
-            std::cout << "in Q4, Vadb" << std::endl;
-            dir=n_bad; //Orientierung prüfen?
+            dir=n_bad;
             return false;
         }
 
         if(voronoiSurface(Q, p, d, a, c, n_dac)){
-            std::cout << "in Q4, Vdac" << std::endl;
-            dir=n_dac; //Orientierung prüfen?
+            dir=n_dac;
             return false;
         }
 
         //else: p is in V_abcd
 
-        Q.push_back(a); //Orientierung?
+        Q.push_back(a);
         Q.push_back(b);
         Q.push_back(c);
         Q.push_back(d);
-        std::cout << "in Q4, Vabcd" << std::endl;
         return true;
     }
     return false;
 }
 
 bool CGView::GJK(){
+
     Vector3d dir=P1[0];
-    //    Vector3d dir=Vector3d(1.0,1.0,1.0);
     Vector3d v=support(dir);
-    //std::cout << "erster eintrag von v    : " << v[0] <<", " << v[1] << ", " << v[2] << std::endl;
 
     std::vector<Vector3d> Q;
     Q.push_back(v);
     dir=v*(-1);
-    std::cout << "im gjk" << std::endl;
     Vector3d p=Vector3d(0.0,0.0,0.0);
-    int counter=0;
 
     while(true){
-        counter++;
         v=support(dir);
-        //std::cout << counter << ". eintrag von v    : " << v[0] <<", " << v[1] << ", " << v[2] << std::endl;
         Q.push_back(v);
         correctSimplexOrientation(Q);
         triangleNormal(Q);
         if(v*dir<0){
-            std::cout << "schneiden sich nicht" << std::endl;
-            return false;
+            return false; //no intersection
         }
         if(simplexSolver(p,Q,dir)){
-            std::cout << "schneiden sich!!" << std::endl;
-            return true;
+            return true; //intersection
         }
     }
 }
@@ -606,16 +560,20 @@ void CGView::paintGL() {
     //Draw off-model
     glDisable (GL_CULL_FACE);
     if(!P1.empty()){
-        bool intersect=false; //
+        // bool intersect=false;
         Vector3d color=Vector3d(0.0,1.0,0.0);
+        if(GJK()) {
+            color=Vector3d(1.0,0.0,0.0);
+        }
         for(unsigned int i=0;i<P1.size();i++) {
 
-            if(!intersect){
-                if(GJK()) {
-                    color=Vector3d(1.0,0.0,0.0);
-                    intersect=true; //so that GJK doesn't have to be calc. for every point
-                }
-            }
+
+            //            if(!intersect){
+            //                if(GJK()) {
+            //                    color=Vector3d(1.0,0.0,0.0);
+            //                    intersect=true; //so that GJK doesn't have to be calc. for every point
+            //                }
+            //            }
             glColor3d(color[0], color[1], color[2]);
             glPushMatrix();
             glTranslated(P1[i][0],P1[i][1],P1[i][2]);
@@ -774,49 +732,36 @@ void CGView::mouseMoveEvent(QMouseEvent* event) {
 void CGView::keyPressEvent( QKeyEvent * event) 
 {
     switch (event->key()) {
-    case Qt::Key_Space :
-        randomSimplex();
-        break;
-    case Qt::Key_A : //Qt::CTRL+
+    case Qt::Key_Q :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][0]-=0.1;
         }
         break;
-    case Qt::Key_X :
+    case Qt::Key_W :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][0]+=0.1;;
         }
         break;
-    case Qt::SHIFT+Qt::Key_Y :
+    case Qt::Key_E :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][1]-=0.1;
         }
         break;
-    case Qt::Key_Y :
+    case Qt::Key_R :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][1]+=0.1;;
         }
         break;
-    case Qt::SHIFT+Qt::Key_Z :
+    case Qt::Key_D :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][2]-=0.1;
         }
         break;
-    case Qt::Key_Z :
+    case Qt::Key_F :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][2]+=0.1;;
         }
         break;
-        //    case Qt::Key_X :
-        //        VoronoiCellSize = (VoronoiCellSize + 1)%5;
-        //        std::cout << "VoronoiCellSize: " << VoronoiCellSize << std::endl;
-        //        break;
-        //    case Qt::Key_Y :
-        //        VoronoiCellSize = (VoronoiCellSize - 1)%5;
-        //        if ( VoronoiCellSize < 0)
-        //            VoronoiCellSize+=5;
-        //        std::cout << "VoronoiCellSize: " << VoronoiCellSize << std::endl;
-        //        break;
     }
     updateGL();
 }
