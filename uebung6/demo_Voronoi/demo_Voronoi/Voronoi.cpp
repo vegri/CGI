@@ -60,14 +60,10 @@ CGMainWindow::~CGMainWindow () {}
 CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent), quad(NULL) {
     main = mainwindow;
 
-    show_circle=false;
     bbox_on = true;
-
-    picked = 0;
 
     /// Um Keyboard-Events durchzulassen
     setFocusPolicy(Qt::StrongFocus);
-
 }
 
 void CGView::initializeGL() {
@@ -82,10 +78,6 @@ void CGView::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_COLOR_MATERIAL);
-
-//    randomSimplex();
-//    VoronoiCellSize = 0;
-
 }
 
 void CGMainWindow::loadPolyhedron() {
@@ -111,10 +103,24 @@ void CGMainWindow::loadPolyhedron() {
     }
 
     Vector3d sumAllVectors, centerOfMass;
-    for(unsigned int i=0;i<ogl->P1.size();i++) {
-        ogl->P1[i]*=10;
-        sumAllVectors += ogl->P1[i];
+    float xmax, xval, ymax, yval, zmax, zval, maxval;
+    xmax=ymax=zmax=-std::numeric_limits<float>::max();
 
+    for(unsigned int i=0;i<ogl->P1.size();i++) {
+        xval=abs(ogl->P1[i][0]);
+        yval=abs(ogl->P1[i][1]);
+        zval=abs(ogl->P1[i][2]);
+        if(xval>xmax) xmax=xval;
+        if(yval>ymax) ymax=yval;
+        if(zval>zmax) zmax=zval;
+        if(xmax>ymax) maxval=xmax;
+        else maxval=ymax;
+        if(zmax>maxval) maxval=zmax;
+    }
+    float scal=0.8/maxval;
+    for(unsigned int i=0;i<ogl->P1.size();i++) {
+        ogl->P1[i]*=scal;
+        sumAllVectors += ogl->P1[i];
     }
 
     centerOfMass=sumAllVectors/ogl->vn;
@@ -549,51 +555,17 @@ void CGView::paintGL() {
     }
 
 
-    //Draw triangular normals
-
-    //    if(simplex.size()==3){
-    //        Vector3d coM=comTriangle(simplex[0],simplex[1],simplex[2]);
-    //        Vector3d normal=coM+n_abc;
-    //        glColor3d(1,0,0);
-    //        glBegin(GL_LINES);
-    //        glVertex3dv(coM.ptr());
-    //        glVertex3dv(normal.ptr());
-    //        glEnd();
-    //    }
-    //    if(simplex.size()==4){
-    //        Vector3d com1=comTriangle(simplex[0],simplex[1],simplex[2]);
-    //        Vector3d normal1=com1+n_abc;
-    //        Vector3d com2=comTriangle(simplex[0],simplex[1],simplex[3]);
-    //        Vector3d normal2=com2+n_bad;
-    //        Vector3d com3=comTriangle(simplex[0],simplex[3],simplex[2]);
-    //        Vector3d normal3=com3+n_dac;
-    //        Vector3d com4=comTriangle(simplex[3],simplex[1],simplex[2]);
-    //        Vector3d normal4=com4+n_bdc;
-    //        glColor3d(1,0,0);
-    //        glBegin(GL_LINES);
-    //        glVertex3dv(com1.ptr());
-    //        glVertex3dv(normal1.ptr());
-    //        glVertex3dv(com2.ptr());
-    //        glVertex3dv(normal2.ptr());
-    //        glVertex3dv(com3.ptr());
-    //        glVertex3dv(normal3.ptr());
-    //        glVertex3dv(com4.ptr());
-    //        glVertex3dv(normal4.ptr());
-    //        glEnd();
-    //    }
-    //end triangular normals
-
-        glColor3d(0,0,1);
-        glBegin(GL_LINES);
-        for(unsigned int i = 0; i < lastSimplex.size(); i++){
-            for(unsigned int j = i+1; j < lastSimplex.size(); j++){
-                Vector3d a(lastSimplex[i][0], lastSimplex[i][1], lastSimplex[i][2]);
-                Vector3d b(lastSimplex[j][0], lastSimplex[j][1], lastSimplex[j][2]);
-                glVertex3dv(a.ptr());
-                glVertex3dv(b.ptr());
-            }
+    glColor3d(0,0,1);
+    glBegin(GL_LINES);
+    for(unsigned int i = 0; i < lastSimplex.size(); i++){
+        for(unsigned int j = i+1; j < lastSimplex.size(); j++){
+            Vector3d a(lastSimplex[i][0], lastSimplex[i][1], lastSimplex[i][2]);
+            Vector3d b(lastSimplex[j][0], lastSimplex[j][1], lastSimplex[j][2]);
+            glVertex3dv(a.ptr());
+            glVertex3dv(b.ptr());
         }
-        glEnd();
+    }
+    glEnd();
 }
 
 void CGView::resizeGL(int width, int height) {
