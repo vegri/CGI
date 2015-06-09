@@ -14,6 +14,7 @@
 #include <sstream>
 #include <iostream>
 #include <limits>
+#include <math.h>
 
 #include "Voronoi.h"
 
@@ -107,21 +108,31 @@ void CGMainWindow::loadPolyhedron() {
     xmax=ymax=zmax=-std::numeric_limits<float>::max();
 
     for(unsigned int i=0;i<ogl->P1.size();i++) {
-        xval=abs(ogl->P1[i][0]);
-        yval=abs(ogl->P1[i][1]);
-        zval=abs(ogl->P1[i][2]);
+       // std::cout <<i << "-ter P-Vektor : " << ogl->P1[i] << std::endl;
+        xval=std::abs(ogl->P1[i][0]); //
+        yval=std::abs(ogl->P1[i][1]);
+        zval=std::abs(ogl->P1[i][2]);
+//        std::cout <<i << "-ter P-Vektor abs val x : " << std::abs(-5.89) << std::endl;
+//        std::cout <<i << "-ter P-Vektor abs val y : " << abs(ogl->P1[i][1]) << std::endl;
+//        std::cout <<i << "-ter P-Vektor abs val z : " << abs(ogl->P1[i][2])<< std::endl;
         if(xval>xmax) xmax=xval;
         if(yval>ymax) ymax=yval;
         if(zval>zmax) zmax=zval;
         if(xmax>ymax) maxval=xmax;
         else maxval=ymax;
         if(zmax>maxval) maxval=zmax;
-    }
-    float scal=0.8/maxval;
-    for(unsigned int i=0;i<ogl->P1.size();i++) {
-        ogl->P1[i]*=scal;
         sumAllVectors += ogl->P1[i];
     }
+    float scal=0.9/maxval;
+std::cout << "scal : " << scal << std::endl;
+std::cout << "xmax : " << xmax << std::endl;
+std::cout << "ymax : " << ymax << std::endl;
+std::cout << "zmax : " << zmax << std::endl;
+std::cout << "maxval : " << maxval << std::endl;
+//    for(unsigned int i=0;i<ogl->P1.size();i++) {
+//        ogl->P1[i]*=scal;
+//        sumAllVectors += ogl->P1[i];
+//    }
 
     centerOfMass=sumAllVectors/ogl->vn;
     //translate center of mass of model to origin
@@ -129,6 +140,7 @@ void CGMainWindow::loadPolyhedron() {
         for(int j=0; j<3; j++){
             ogl->P1[i][j]= ogl->P1[i][j]-centerOfMass[j];
         }
+        ogl->P1[i]*=scal;
     }
 
     file.close();
