@@ -485,7 +485,7 @@ bool CGView::GJK(){
     Vector3d dir=P1[0];
     Vector3d v=support(dir);
 
-    //std::vector<Vector3d> Q;
+    std::vector<Vector3d> Q;
     Q.push_back(v);
     dir=v*(-1);
     Vector3d p=Vector3d(0.0,0.0,0.0);
@@ -499,6 +499,7 @@ bool CGView::GJK(){
             return false; //no intersection
         }
         if(simplexSolver(p,Q,dir)){
+            lastSimplex=Q;
             return true; //intersection
         }
     }
@@ -521,17 +522,15 @@ void CGView::paintGL() {
     if (bbox_on) drawBoundingBox();
 
     GLUquadricObj *quadric;
-    glColor3d(1,0,1);
+    glColor3d(1,1,0);
     quadric = gluNewQuadric();
-    gluSphere( quadric , 0.01 , 10 , 10);
+    gluSphere( quadric , 0.02 , 10 , 10);
     glPushMatrix();
-    glColor3d(0,1,0);
 
 
     //Draw off-model
     glDisable (GL_CULL_FACE);
     if(!P1.empty()){
-        // bool intersect=false;
         Vector3d color=Vector3d(0.0,1.0,0.0);
         if(GJK()) {
             color=Vector3d(1.0,0.0,0.0);
@@ -549,19 +548,6 @@ void CGView::paintGL() {
         }
     }
 
-
-    //Calculate triangular normals
-
-    //    if(simplex.size()==3){
-    //        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
-    //    }
-
-    //    if(simplex.size()==4){
-    //        n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
-    //        n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
-    //        n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
-    //        n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
-    //    }
 
     //Draw triangular normals
 
@@ -597,17 +583,17 @@ void CGView::paintGL() {
     //    }
     //end triangular normals
 
-    //    glColor3d(1,0,0);
-    //    glBegin(GL_LINES);
-    //    for(unsigned int i = 0; i < simplex.size()-1; i++){
-    //        for(unsigned int j = i+1; j < simplex.size(); j++){
-    //            Vector3d a(simplex[i][0], simplex[i][1], simplex[i][2]);
-    //            Vector3d b(simplex[j][0], simplex[j][1], simplex[j][2]);
-    //            glVertex3dv(a.ptr());
-    //            glVertex3dv(b.ptr());
-    //        }
-    //    }
-    //    glEnd();
+        glColor3d(0,0,1);
+        glBegin(GL_LINES);
+        for(unsigned int i = 0; i < lastSimplex.size(); i++){
+            for(unsigned int j = i+1; j < lastSimplex.size(); j++){
+                Vector3d a(lastSimplex[i][0], lastSimplex[i][1], lastSimplex[i][2]);
+                Vector3d b(lastSimplex[j][0], lastSimplex[j][1], lastSimplex[j][2]);
+                glVertex3dv(a.ptr());
+                glVertex3dv(b.ptr());
+            }
+        }
+        glEnd();
 }
 
 void CGView::resizeGL(int width, int height) {

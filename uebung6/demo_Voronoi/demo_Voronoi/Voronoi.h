@@ -103,7 +103,7 @@ protected:
     GLUquadric *quad;
     Quat4d q_now;
 
-    std::vector<Vector3d> Q;
+    std::vector<Vector3d> lastSimplex;
 
     double EPS;
     Vector3d Cen;
