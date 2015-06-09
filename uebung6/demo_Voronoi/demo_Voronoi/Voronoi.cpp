@@ -17,8 +17,6 @@
 
 #include "Voronoi.h"
 
-const int numpoints = 8000;
-static std::vector<Vector3d> point;
 
 CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
     : QMainWindow (parent, flags) {
@@ -65,15 +63,6 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent),
     show_circle=false;
     bbox_on = true;
 
-
-    //Zufallsgenerator fuer Punkte
-    //    point.resize(numpoints);
-    //    for(int i=0;i<numpoints;i++) {
-    //        for(int j=0;j<3;j++)
-    //            point[i][j] = 2.0*(double(rand())/RAND_MAX-0.5);
-    //    }
-
-
     picked = 0;
 
     /// Um Keyboard-Events durchzulassen
@@ -94,8 +83,8 @@ void CGView::initializeGL() {
     glEnable(GL_NORMALIZE);
     glEnable(GL_COLOR_MATERIAL);
 
-    randomSimplex();
-    VoronoiCellSize = 0;
+//    randomSimplex();
+//    VoronoiCellSize = 0;
 
 }
 
@@ -136,25 +125,10 @@ void CGMainWindow::loadPolyhedron() {
         }
     }
 
-    std::cout << "erster eintrag von P1    : " << ogl->P1[0] <<", " << ogl->P1[1] << ", " << ogl->P1[2] << std::endl;
-
     file.close();
 
     ogl->updateGL();
     statusBar()->showMessage ("Loading generator model done." ,3000);
-}
-
-
-void CGView::randomSimplex(){
-    simplex.clear();
-    int size = rand()%4;
-    for(int i = 0; i <= size; i++){
-        double x = (double(rand())/RAND_MAX-0.5);
-        double y = (double(rand())/RAND_MAX-0.5);
-        double z = (double(rand())/RAND_MAX-0.5);
-        simplex.push_back(Vector3d(x,y,z));
-    }
-    correctSimplexOrientation(simplex);
 }
 
 
@@ -230,7 +204,6 @@ bool CGView::voronoiSurface(std::vector<Vector3d> &Q, const Vector3d &p, const V
     Vector3d h2=(c-b)%normal;
     Vector3d h3=(a-c)%normal;
     if(((p-a)*h1<=0) && ((p-b)*h2<=0) && ((p-c)*h3<=0) && ((p-a)*normal>0)){
-        //Q.resize(3);
         Q.push_back(a);
         Q.push_back(b);
         Q.push_back(c);
@@ -242,7 +215,6 @@ bool CGView::voronoiSurface(std::vector<Vector3d> &Q, const Vector3d &p, const V
 bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vector3d &a, const Vector3d &b,
                           const Vector3d &c){
     if(((p-a)*(b-a)<=0) && ((p-a)*(c-a)<=0)){
-        //Q.resize(1);
         Q.push_back(a);
         return true;
     }
@@ -253,7 +225,6 @@ bool CGView::voronoiPoint(std::vector<Vector3d> &Q, const Vector3d &p, const Vec
                           const Vector3d &c, const Vector3d &d){
 
     if(((p-a)*(b-a)<=0) && ((p-a)*(d-a)<=0) && ((p-a)*(c-a)<=0)){
-        //Q.resize(1);
         Q.push_back(a);
         return true;
     }
@@ -514,7 +485,7 @@ bool CGView::GJK(){
     Vector3d dir=P1[0];
     Vector3d v=support(dir);
 
-    std::vector<Vector3d> Q;
+    //std::vector<Vector3d> Q;
     Q.push_back(v);
     dir=v*(-1);
     Vector3d p=Vector3d(0.0,0.0,0.0);
@@ -567,26 +538,12 @@ void CGView::paintGL() {
         }
         for(unsigned int i=0;i<P1.size();i++) {
 
-
-            //            if(!intersect){
-            //                if(GJK()) {
-            //                    color=Vector3d(1.0,0.0,0.0);
-            //                    intersect=true; //so that GJK doesn't have to be calc. for every point
-            //                }
-            //            }
             glColor3d(color[0], color[1], color[2]);
             glPushMatrix();
             glTranslated(P1[i][0],P1[i][1],P1[i][2]);
-            //glScaled(500.0,500.0,500.0);
-
-            //        feature = simplex;
-            //        Vector3d dir, color;
-            //        simplexSolver(Vector3d(point[i][0], point[i][1], point[i][2]), feature, dir, color);
-            //        int num = feature.size();
 
             gluQuadricDrawStyle(quadric, GLU_FILL);
 
-            //glColor3d(color[0],color[1],color[2]);
             gluSphere( quadric , .01 , 10 , 10);
             glPopMatrix();
         }

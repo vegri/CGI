@@ -103,17 +103,11 @@ protected:
     GLUquadric *quad;
     Quat4d q_now;
 
-    std::vector<Vector3d> points;
-    std::vector<Vector3d> simplex;
-    std::vector<Vector3d> feature;
-    Vector3d direction;
-    Vector3d sphere_center;
-
+    std::vector<Vector3d> Q;
 
     double EPS;
     Vector3d Cen;
     bool isInCol;
-    int VoronoiCellSize;
 
 
     bool simplexSolver(const Vector3d &p,
@@ -133,7 +127,6 @@ protected:
     void triangleNormal(const std::vector<Vector3d> &simplex);
     bool GJK();
 
-    void randomSimplex();
     void correctSimplexOrientation(std::vector<Vector3d> & simplex);
 
 public slots:
