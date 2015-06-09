@@ -79,11 +79,8 @@ public:
     double zoom;
     bool wireframe_on, bbox_on;
 
-    bool show_circle;
     int vn,fn,en;
     std::vector<Vector3d> P1;
-
-    unsigned int picked;
 
 protected:
     void paintGL();
@@ -104,10 +101,6 @@ protected:
     Quat4d q_now;
 
     std::vector<Vector3d> lastSimplex;
-
-    double EPS;
-    Vector3d Cen;
-    bool isInCol;
 
 
     bool simplexSolver(const Vector3d &p,
