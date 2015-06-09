@@ -252,10 +252,7 @@ bool CGView::simplexSolver(const Vector3d &p,
                            Vector3d &dir, Vector3d &color){
 
     if(Q.size() == 1){
-        //        Vector3d a = Q.at(0);
-        //        Q.clear();
-        //        Q.push_back(a);
-        // ADD YOUR CODE HERE
+        //        nothing to do actually
         return false;
     }
 
@@ -413,7 +410,6 @@ bool CGView::simplexSolver(const Vector3d &p,
         color=Vector3d(0.2,0.5,1.0);
         return false;
     }
-    //color=Vector3d(0.2,0.5,1.0);
     return false;
 }
 
@@ -466,6 +462,7 @@ void CGView::paintGL() {
 
     if(simplex.size()==3){
         n_abc=(simplex[1]-simplex[0])%(simplex[2]-simplex[0]);
+        n_abc.normalize();
     }
 
     if(simplex.size()==4){
@@ -473,13 +470,17 @@ void CGView::paintGL() {
         n_bad=(simplex[3]-simplex[0])%(simplex[1]-simplex[0]);
         n_bdc=(simplex[3]-simplex[1])%(simplex[2]-simplex[1]);
         n_dac=(simplex[0]-simplex[3])%(simplex[2]-simplex[3]);
+        n_abc.normalize();
+        n_bad.normalize();
+        n_bdc.normalize();
+        n_dac.normalize();
     }
 
     //Draw triangular normals
 
     if(simplex.size()==3){
         Vector3d coM=com(simplex[0],simplex[1],simplex[2]);
-        Vector3d normal=coM+n_abc;
+        Vector3d normal=(coM+n_abc*0.75);
         glColor3d(1,0,0);
         glBegin(GL_LINES);
         glVertex3dv(coM.ptr());
@@ -488,13 +489,13 @@ void CGView::paintGL() {
     }
     if(simplex.size()==4){
         Vector3d com1=com(simplex[0],simplex[1],simplex[2]);
-        Vector3d normal1=com1+n_abc;
+        Vector3d normal1=(com1+n_abc*0.75);
         Vector3d com2=com(simplex[0],simplex[1],simplex[3]);
-        Vector3d normal2=com2+n_bad;
+        Vector3d normal2=(com2+n_bad*0.75);
         Vector3d com3=com(simplex[0],simplex[3],simplex[2]);
-        Vector3d normal3=com3+n_dac;
+        Vector3d normal3=(com3+n_dac*0.75);
         Vector3d com4=com(simplex[3],simplex[1],simplex[2]);
-        Vector3d normal4=com4+n_bdc;
+        Vector3d normal4=(com4+n_bdc*0.75);
         glColor3d(1,0,0);
         glBegin(GL_LINES);
         glVertex3dv(com1.ptr());
@@ -507,7 +508,7 @@ void CGView::paintGL() {
         glVertex3dv(normal4.ptr());
         glEnd();
     }
-    //Ende Dreiecksnormale
+    //End triangular normals
 
     glColor3d(1,0,0);
     glBegin(GL_LINES);

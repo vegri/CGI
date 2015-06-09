@@ -100,13 +100,7 @@ protected:
     std::vector<Vector3d> points;
     std::vector<Vector3d> simplex;
     std::vector<Vector3d> feature;
-    Vector3d direction;
-    Vector3d sphere_center;
 
-
-    double EPS;
-    Vector3d Cen;
-    bool isInCol;
     int VoronoiCellSize;
 
 
