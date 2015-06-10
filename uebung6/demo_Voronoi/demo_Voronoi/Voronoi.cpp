@@ -38,13 +38,6 @@ CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
 
     menuBar()->addMenu(file);
 
-    QAction *action;
-    // Create a 'View' menu
-    QMenu *show = new QMenu("&Show",this);
-    action = show->addAction("show sphere", ogl, SLOT(toggleSphere()), Qt::Key_C);
-    action->setCheckable(true);
-    menuBar()->addMenu(show);
-
     // Put the GL widget inside the frame
     QHBoxLayout* layout = new QHBoxLayout();
     layout->addWidget(ogl);
@@ -506,6 +499,7 @@ bool CGView::GJK(){
         correctSimplexOrientation(Q);
         triangleNormal(Q);
         if(v*dir<0){
+            lastSimplex=Q;
             return false; //no intersection
         }
         if(simplexSolver(p,Q,dir)){
@@ -553,7 +547,7 @@ void CGView::paintGL() {
 
             gluQuadricDrawStyle(quadric, GLU_FILL);
 
-            gluSphere( quadric , .01 , 10 , 10);
+            gluSphere( quadric , .005 , 10 , 10);
             glPopMatrix();
         }
     }
@@ -655,30 +649,48 @@ void CGView::keyPressEvent( QKeyEvent * event)
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][0]-=0.1;
         }
+        for(unsigned int i=0; i<lastSimplex.size(); i++){
+            lastSimplex[i][0]-=0.1;
+        }
         break;
     case Qt::Key_W :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][0]+=0.1;;
+        }
+        for(unsigned int i=0; i<lastSimplex.size(); i++){
+            lastSimplex[i][0]+=0.1;
         }
         break;
     case Qt::Key_E :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][1]-=0.1;
         }
+        for(unsigned int i=0; i<lastSimplex.size(); i++){
+            lastSimplex[i][1]-=0.1;
+        }
         break;
     case Qt::Key_R :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][1]+=0.1;;
+        }
+        for(unsigned int i=0; i<lastSimplex.size(); i++){
+            lastSimplex[i][1]+=0.1;
         }
         break;
     case Qt::Key_D :
         for(unsigned int i=0; i<P1.size(); i++){
             P1[i][2]-=0.1;
         }
+        for(unsigned int i=0; i<lastSimplex.size(); i++){
+            lastSimplex[i][2]-=0.1;
+        }
         break;
     case Qt::Key_F :
         for(unsigned int i=0; i<P1.size(); i++){
-            P1[i][2]+=0.1;;
+            P1[i][2]+=0.1;
+        }
+        for(unsigned int i=0; i<lastSimplex.size(); i++){
+            lastSimplex[i][2]+=0.1;
         }
         break;
     }

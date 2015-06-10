@@ -129,7 +129,7 @@ public slots:
         updateGL();
     }
 
-    void toggleSphere () { show_circle = !show_circle; updateGL(); }
+    //void toggleSphere () { show_circle = !show_circle; updateGL(); }
     void toggleBbox() { bbox_on = !bbox_on; updateGL(); }
 
 };
