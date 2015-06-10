@@ -617,6 +617,7 @@ void CGView::keyPressEvent( QKeyEvent * event)
         break;
     }
     updateGL();
+    updateGL();
 }
 
 int main (int argc, char **argv) {
